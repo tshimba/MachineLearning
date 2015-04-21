@@ -5,6 +5,7 @@ Created on Tue Apr 21 14:36:34 2015
 @author: shimba
 """
 
+<<<<<<< HEAD
 import numpy as np
 from sklearn import datasets
 from sklearn import decomposition
@@ -60,3 +61,5 @@ for itr in range(1):
         else:
             print False
             w = w - xx[count]*ff
+=======
+>>>>>>> parent of 9717b89... perceptron without any tuning, using 64 dimention feature vector without good result
