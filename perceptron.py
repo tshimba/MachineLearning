@@ -80,11 +80,11 @@ for count in range(len(digits.images)):
 xx = np.array(xx)
 print xx.shape
 
-for itr in range(2000):
+for itr in range(1):
     for count in range(len(xx)):
         ff = f(w.T * xx[count])
         if ff == y[count]:
             print True
         else:
             print False
-            w = w + xx[count]*ff
+            w = w - xx[count]*ff
