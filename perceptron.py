@@ -5,64 +5,46 @@ Created on Tue Apr 21 14:36:34 2015
 @author: shimba
 """
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 import numpy as np
 from sklearn import datasets
-from sklearn import decomposition
+from sklearn import cross_validation
 
+eta = 1
+# Load the digits dataset
+digits = datasets.load_digits(2)    # load two classes, 0 and 1
+data = digits.data
+targets = digits.target
+n = len(data)
+# add one dimention to future vector for bias
+ones = np.ones((n, 1))
+X = np.hstack((ones, data))
+# put labels into variable y
+y = targets
+y[y == 0] = -1  # zero to -1
+X_train, X_valid, y_train, y_valid = cross_validation.train_test_split(X, y)
+
+n_train = len(X_train)
+n_valid = len(X_valid)
+
+w = np.zeros(65)
 def f(a):
     if a >= 0:
-        result = 1
+        return 1
     else:
-        result = -1
-    return result
+        return -1
 
-#Load the digits dataset
-digits = datasets.load_digits(2)    # load two classes, 0 and 1
+for itr in range(5):
+    print "iteration", itr
+    for xi, yi in zip(X_train, y_train):
+        if f(np.dot(xi, w)) != yi:
+            w += eta * xi * yi
+            # print "w", w[0]
 
-# put rabels into variable y
-y = [label for label in digits.target]
-# zero to -1
-for count in range(len(y)):
-    if y[count] == 0:
-        y[count] = -1
-#print y
+    count_fails = 0
+    for xi, yi in zip(X_valid, y_valid):  # validation data
+        if f(np.dot(xi, w)) != yi:
+            count_fails += 1
+    print "error rate", count_fails / float(n_valid)
 
-# 1 is the bias
-tmp = [[1] for i in range(len(digits.images))]
-
-# 2 dimention to 1 dimention -- this should be funciton
-for count in range(len(digits.images)):
-    for vec1 in digits.images[count]:
-        for vec2 in vec1:
-            tmp[count].append(vec2)
-tmp = np.array(tmp)
-pca = decomposition.PCA(3)
-tmp_result = pca.fit_transform(tmp)
-print tmp_result.shape
-
-# vertical vector
-xx = [0 for i in range(len(tmp_result))]
-for count in range(len(tmp_result)):
-    for vec1 in tmp_result[count]:
-        xx[count] = np.matrix(tmp_result[count]).T
-xx = np.array(xx)
-print xx.shape
-
-# initialize weight vector -- this should be function
-w = np.array([0 for itr in range(3)])
-w = np.matrix(w).T      # vertical vector
-
-for itr in range(1):
-    for count in range(len(xx)):
-        ff = f(w.T * xx[count])
-        if ff == y[count]:
-            print True
-        else:
-            print False
-            w = w - xx[count]*ff
-=======
->>>>>>> parent of 9717b89... perceptron without any tuning, using 64 dimention feature vector without good result
-=======
->>>>>>> parent of 9717b89... perceptron without any tuning, using 64 dimention feature vector without good result
+plt.matshow(w[1:].reshape(8, 8), cmap=plt.cm.gray)
+print w[1:].reshape(8, 8)
