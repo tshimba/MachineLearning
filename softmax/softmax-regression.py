@@ -5,3 +5,4 @@ Created on Fri Apr 24 16:46:58 2015
 @author: shimba
 """
 
+import numpy as np
