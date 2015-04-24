@@ -17,21 +17,26 @@ digits = datasets.load_digits(2)    # load two classes, 0 and 1
 data = digits.data
 targets = digits.target
 
+n = len(data)
 
-# X is feature vectors
-X = data        # 360 x 65
+# X: feature vectors
+# add one dimention to future vector for bias
+ones = np.ones((n, 1))
+X = np.hstack((ones, data))     # 360 x 65
 
-# t is correct labels
+# t: correct labels
 t = targets     # 360 x 1
-
 
 X_train, X_valid, t_train, t_valid = cross_validation.train_test_split(X, t)
 
 n_train = len(X_train)
 n_valid = len(X_valid)
 
+# add bias to feature vector dimension
+D = X_train.shape[-1]
+
 # initialize weight vector
-w = np.random.rand(64)
+w = np.random.rand(D)
 
 
 def sigmoid(a):
@@ -50,8 +55,10 @@ for r in range(5):
 
     count_fails = 0
     for xi, ti in zip(X_valid, t_valid):  # validation data
-        y = sigmoid(np.dot(w.T, xi))
-        # float to int with round off
-        if int(round(y)) == ti:
+        if np.dot(w.T, xi) > 0:     # sigmoid(0) equals 0.5
+            y = 1
+        else:
+            y = 0
+        if y != ti:
             count_fails += 1
     print "error rate", count_fails / float(n_valid)
