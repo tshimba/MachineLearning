@@ -19,24 +19,24 @@ targets = digits.target
 
 n = len(data)
 
+# add bias to feature vector dimension
+D = data.shape[-1] + 1
+
 # X: feature vectors
-# add one dimention to future vector for bias
+# add one dimension to future vector for bias
 ones = np.ones((n, 1))
-X = np.hstack((ones, data))     # 360 x 65
+X = np.hstack((ones, data)).reshape(n, D, 1)     # 360 x 65 x 1
 
 # t: correct labels
-t = targets     # 360 x 1
+t = targets     # (360, ) is 1 dimension.
 
 X_train, X_valid, t_train, t_valid = cross_validation.train_test_split(X, t)
 
 n_train = len(X_train)
 n_valid = len(X_valid)
 
-# add bias to feature vector dimension
-D = X_train.shape[-1]
-
 # initialize weight vector
-w = np.random.rand(D)
+w = np.random.rand(D, 1)    # (65, 1) is 2 dimension
 
 
 def sigmoid(a):
@@ -50,7 +50,7 @@ for r in range(5):
     for xi, ti in zip(X_train, t_train):
         # y is predicted label
         y = sigmoid(np.dot(w.T, xi))
-        gradient += np.dot((y - ti), xi)
+        gradient += (y - ti) * xi
     w = w - eta * gradient
 
     count_fails = 0
