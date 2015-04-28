@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn import cross_validation
+from scipy.misc import logsumexp
 
 eta = 0.1
 
@@ -45,25 +46,27 @@ w = np.random.rand(n_label, D)  # 10 x 65
 
 
 # softmax function
-# input a = np.dot(X[0], w.T)
+# input a = np.dot(xi, w.T)
 def softmax(a):
-    return np.exp(a) / np.sum(np.exp(a))
+    return np.exp(a - logsumexp(a))
 
 
 # 'r' means iteration. The name 'r' come from PRML.
-for r in range(5):
+for r in range(500):
     print "iteration", r+1
     gradient = np.zeros((n_label, D))    # initialize gradient: 10 x 65
     for xi, ti in zip(X_train, t_train):
         # y is predicted label
         y = softmax(np.dot(xi, w.T))  # y.shape -> (10L,)
-        error = y - ti
-        for i in range(n_label):
-            gradient[i] += error[i] * xi
+        error = (y - ti).reshape(n_label, 1)
+        gradient += error * xi
+        assert not np.any(np.isnan(gradient))
     w -= eta * gradient
-    print w
+    assert not np.any(np.isnan(w))
 
-    #count_fails = 0
-    #for xi, ti in zip(X_valid, t_valid):  # validation data
-        #print softmax(np.dot(xi, w.T))
-        #time.sleep(0.1)
+    count_fails = 0
+    for xi, ti in zip(X_valid, t_valid):  # validation data
+        y = softmax(np.dot(xi, w.T))
+        if np.argmax(y) != np.argmax(ti):
+            count_fails += 1
+    print "error rate", count_fails / float(n_valid)
