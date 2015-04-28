@@ -5,11 +5,13 @@ Created on Fri Apr 24 16:46:58 2015
 @author: shimba
 """
 
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn import cross_validation
 from scipy.misc import logsumexp
+import my_logsumexp
 
 eta = 0.1
 
@@ -48,12 +50,12 @@ w = np.random.rand(n_label, D)  # 10 x 65
 # softmax function
 # input a = np.dot(xi, w.T)
 def softmax(a):
-    return np.exp(a - logsumexp(a))
+    return np.exp(a - my_logsumexp.my_logsumexp(a))
 
 
 # 'r' means iteration. The name 'r' come from PRML.
 for r in range(500):
-    print "iteration", r+1
+    print("iteration", r+1, end="    ")
     gradient = np.zeros((n_label, D))    # initialize gradient: 10 x 65
     for xi, ti in zip(X_train, t_train):
         # y is predicted label
@@ -69,4 +71,4 @@ for r in range(500):
         y = softmax(np.dot(xi, w.T))
         if np.argmax(y) != np.argmax(ti):
             count_fails += 1
-    print "error rate", count_fails / float(n_valid)
+    print("error rate", count_fails / float(n_valid))
