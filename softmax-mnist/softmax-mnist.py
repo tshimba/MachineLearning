@@ -62,10 +62,14 @@ w = np.random.rand(n_label, D)
 # softmax function
 # input a = np.dot(xi, w.T)
 def softmax(a):
-    return np.exp(a - logsumexp(a, axis=0))
+    #print logsumexp(a, axis=0).sha
+    a_T = a.T
+    b = logsumexp(a_T, axis=0)
+    return np.exp(a_T - b).T
+    #return np.exp(a - logsumexp(a, axis=0))
 
 eta = 1.0
-num_iteration = 5
+num_iteration = 50
 
 error_rates_train = []
 error_rates_valid = []
@@ -75,54 +79,33 @@ for r in range(num_iteration):
     print "iteration", r+1
     gradient = np.zeros((n_label, D))    # initialize gradient: 10 x 65
 
-#    yy = softmax(np.dot(X_train, w.T))
-#    print yy
-#    error = (y - t_train).reshape(n_label, 1)
-#    gradient =
-    for xi, ti in zip(X_train, t_train):
-        # y is predicted label
-        y = softmax(np.dot(xi, w.T))  # y.shape -> (10L,)
-        error = (y - ti).reshape(n_label, 1)
-        gradient += error * xi
-        assert not np.any(np.isnan(gradient))
+    # TODO: count time and compare with before implementation
+    y = softmax(np.dot(X_train, w.T))
+    error = (y - t_train)
+    gradient = np.dot(error.T, X_train)
     w -= eta * gradient
+
     assert not np.any(np.isnan(w))
 
     eta *= 0.9
 
     print 'l2 norm (w)', np.linalg.norm(w)
 
-    count_fails = 0
-    for xi, ti in zip(X_train, t_train):  # validation data
-        y = softmax(np.dot(xi, w.T))
-        if np.argmax(y) != np.argmax(ti):
-            count_fails += 1
-    error_rate_train = count_fails / float(n_train)
-    error_rates_train.append(error_rate_train)
+    y = softmax(np.dot(X_train, w.T))
+    n_fails_train = np.sum(y != t_train) / 2
+    error_rate_train = n_fails_train / float(n_train)
     print "[train] error rate", error_rate_train
+    error_rates_train.append(error_rate_train)
 
-    count_fails = 0
-    for xi, ti in zip(X_valid, t_valid):  # validation data
-        y = softmax(np.dot(xi, w.T))
-        if np.argmax(y) != np.argmax(ti):
-            count_fails += 1
-    error_rate_valid = count_fails / float(n_valid)
-    error_rates_valid.append(error_rate_valid)
+    y = softmax(np.dot(X_valid, w.T))
+    n_fails_valid = np.sum(y != t_valid) / 2
+    error_rate_valid = n_fails_valid / float(n_valid)
     print "[valid] error rate", error_rate_valid
+    error_rates_valid.append(error_rate_valid)
 
-count_fails = 0
-count_correct = 0
-for xi, ti in zip(X_test, t_test):  # validation data
-    y = softmax(np.dot(xi, w.T))
-    if np.argmax(y) != np.argmax(ti):
-        count_fails += 1
-    else:
-        count_correct += 1
-error_rate_test = count_fails / float(n_test)
-correct_rate_test = count_correct / float(n_test)
-print "[test] error rate", error_rate_valid
-print "[test] correct rate", correct_rate_test
-
+y = softmax(np.dot(X_test, w.T))
+n_fails_test = np.sum(y != t_test) / 2
+n_correct_test = n_test - n_fails_test
 
 fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(10, 20))
 for wk, ax in zip(w, axes.ravel()):
@@ -133,3 +116,6 @@ plt.plot(np.arange(num_iteration), np.array(error_rates_train))
 plt.plot(np.arange(num_iteration), np.array(error_rates_valid))
 plt.legend(['train', 'valid'])
 plt.show()
+
+print "[test] error rate", n_fails_test / float(n_test)
+print "[test] correct rate", n_correct_test / float(n_test)
