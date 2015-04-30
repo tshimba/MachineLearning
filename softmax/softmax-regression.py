@@ -30,8 +30,6 @@ X = np.hstack((ones, data))     # (1797L, 65L)
 # labels to 1 of K
 t = np.zeros((n, n_label))      # (1797L, 10L)
 t[range(n), targets] = 1
-#for i, j in enumerate(targets):
-#    t[i, j] = 1 # put(j, 1)
 
 X_train, X_valid, t_train, t_valid = cross_validation.train_test_split(
     X, t, test_size=0.5)
@@ -108,5 +106,3 @@ plt.plot(np.arange(num_iteration), np.array(error_rates_train))
 plt.plot(np.arange(num_iteration), np.array(error_rates_valid))
 plt.legend(['train', 'valid'])
 plt.show()
-
-np.all()
