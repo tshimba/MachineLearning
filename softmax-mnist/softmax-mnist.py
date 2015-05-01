@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn import cross_validation
+from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
 
 eta = 0.1
@@ -69,7 +70,7 @@ def softmax(a):
     #return np.exp(a - logsumexp(a, axis=0))
 
 eta = 1.0
-num_iteration = 50
+num_iteration = 500
 
 error_rates_train = []
 error_rates_valid = []
