@@ -5,6 +5,7 @@ Created on Tue Apr 28 12:57:12 2015
 @author: shimba
 """
 
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
@@ -14,12 +15,21 @@ from scipy.misc import logsumexp
 
 n_training = 60000
 
+# hyper parameters
+eta = 0.000000004
+eta_update_rate = 1.0
+num_iteration = 500
+minibatch_size = 500    # training data size is 50,000
+# initialize weight vector
+mu = 0.0                # average
+sigma = 0.009             # distribution
+
 # Load the digits dataset
 # fetch_mldata ... dataname is on mldata.org, data_home
 # load 10 classes, from 0 to 9
-print 'loading mnist dataset'
+print('loading mnist dataset')
 mnist = datasets.fetch_mldata('MNIST original')
-print 'load done'
+print('load done')
 data = mnist.data
 targets = mnist.target
 
@@ -56,7 +66,7 @@ D = X_train.shape[-1]
 
 # initialize weight vector
 # each w is vertical vector
-w = np.random.rand(n_label, D)
+w = np.random.normal(mu, sigma) * np.random.rand(n_label, D)
 
 
 # softmax function
@@ -68,17 +78,15 @@ def softmax(a):
     return np.exp(a_T - b).T
     #return np.exp(a - logsumexp(a, axis=0))
 
-# hyper parameters
-eta = 4.0
-num_iteration = 50
-minibatch_size = 500    # training data size is 50,000
+
+
 
 correct_rates_train = []
 correct_rates_valid = []
 
 # 'r' means iteration. The name 'r' come from PRML.
 for r in range(num_iteration):
-    print "iteration", r+1
+    print("%3d" % int(r+1), end=" ")
     gradient = np.zeros((n_label, D))    # initialize gradient: 10 x 65
 
     # ---
@@ -101,9 +109,9 @@ for r in range(num_iteration):
         assert not np.any(np.isnan(w))
     # training done
         
-    eta *= 0.75  # update eta
+    eta *= eta_update_rate  # update eta
 
-    print 'l2 norm (w)', np.linalg.norm(w)
+    print("l2 norm %0.4f" % np.linalg.norm(w), end=" ")
 
     # calculate error rate of training data
     y_pred_train = softmax(np.dot(X_train, w.T))
@@ -111,7 +119,7 @@ for r in range(num_iteration):
     n_fails_train = np.sum(np.argmax(y_pred_train, axis=1) != 
                                                     np.argmax(t_train, axis=1))
     correct_rate_train = 1 - (n_fails_train / float(n_train))
-    print "[train] correct rate", correct_rate_train
+    print("[train] cor rate %0.4f" % correct_rate_train, end=" ")
     correct_rates_train.append(correct_rate_train)
 
     # calculate error rate of validation data
@@ -119,7 +127,7 @@ for r in range(num_iteration):
     n_fails_valid = np.sum(np.argmax(y_pred_valid, axis=1) != 
                                                     np.argmax(t_valid, axis=1))
     correct_rate_valid = 1 - (n_fails_valid / float(n_valid))
-    print "[valid] correct rate", correct_rate_valid
+    print("[valid] cor rate %0.4f" % correct_rate_valid)
     correct_rates_valid.append(correct_rate_valid)
 
 # plot weight vector
@@ -174,4 +182,4 @@ plt.figure()
 plot_confusion_matrix(cm)
 ### plot confusion matrix end ###
 
-print "[test] correct rate", n_correct_test / float(n_test)
+print("[test] correct rate %f" % (n_correct_test / float(n_test)))
