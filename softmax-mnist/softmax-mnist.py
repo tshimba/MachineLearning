@@ -11,6 +11,7 @@ from sklearn import datasets
 from sklearn import cross_validation
 from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
+import random
 
 n_training = 60000
 
@@ -18,7 +19,7 @@ n_training = 60000
 # fetch_mldata ... dataname is on mldata.org, data_home
 # load 10 classes, from 0 to 9
 print 'loading mnist dataset'
-mnist = datasets.fetch_mldata('MNIST original', data_home=".")
+mnist = datasets.fetch_mldata('MNIST original')
 print 'load done'
 data = mnist.data
 targets = mnist.target
@@ -68,8 +69,10 @@ def softmax(a):
     return np.exp(a_T - b).T
     #return np.exp(a - logsumexp(a, axis=0))
 
+# hyper parameters
 eta = 1.0
-num_iteration = 500
+num_iteration = 200
+minibatch_size = 500    # training data size is 50,000
 
 error_rates_train = []
 error_rates_valid = []
@@ -79,32 +82,46 @@ for r in range(num_iteration):
     print "iteration", r+1
     gradient = np.zeros((n_label, D))    # initialize gradient: 10 x 65
 
-    # TODO: count time and compare with before implementation
-    y = softmax(np.dot(X_train, w.T))
-    error = (y - t_train)
-    gradient = np.dot(error.T, X_train)
-    w -= eta * gradient
-
-    assert not np.any(np.isnan(w))
-
-    eta *= 0.9
+    # ---
+    # generate minibatch here
+    # ---
+    tmp = np.hstack((X_train, t_train))
+    random.shuffle(tmp)
+    X_train_shuffle, t_train_shuffle = np.hsplit(tmp, np.array([-10]))
+    for i in range(n_train / minibatch_size):
+        X_train_batch = X_train_shuffle[minibatch_size * i:minibatch_size * (i+1)]
+        t_train_batch = t_train_shuffle[minibatch_size * i:minibatch_size * (i+1)]    
+    
+    # mini batch SGD training start
+    for i in range(n_train / minibatch_size):
+        y_training = softmax(np.dot(X_train_batch, w.T))
+        error = (y_training - t_train_batch)
+        gradient = np.dot(error.T, X_train_batch)
+        w -= eta * gradient
+        assert not np.any(np.isnan(w))
+    # training done
+        
+    eta *= 0.9  # update eta
 
     print 'l2 norm (w)', np.linalg.norm(w)
 
-    y = softmax(np.dot(X_train, w.T))
-    n_fails_train = np.sum(y != t_train) / 2
+    # calculate error rate of training data
+    y_pred_train = softmax(np.dot(X_train, w.T))
+    n_fails_train = np.sum(y_pred_train != t_train) / 2
     error_rate_train = n_fails_train / float(n_train)
     print "[train] error rate", error_rate_train
     error_rates_train.append(error_rate_train)
 
-    y = softmax(np.dot(X_valid, w.T))
-    n_fails_valid = np.sum(y != t_valid) / 2
+    # calculate error rate of validation data
+    y_pred_valid = softmax(np.dot(X_valid, w.T))
+    n_fails_valid = np.sum(y_pred_valid != t_valid) / 2
     error_rate_valid = n_fails_valid / float(n_valid)
     print "[valid] error rate", error_rate_valid
     error_rates_valid.append(error_rate_valid)
 
-y = softmax(np.dot(X_test, w.T))
-n_fails_test = np.sum(y != t_test) / 2
+# calculate error rate of test data
+y_pred_test = softmax(np.dot(X_test, w.T))
+n_fails_test = np.sum(y_pred_test != t_test) / 2
 n_correct_test = n_test - n_fails_test
 
 mnist_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -127,7 +144,7 @@ def oneK2label(y):
     return result
 
 t_test_label = oneK2label(t_test)
-y_label = oneK2label(y)
+y_label = oneK2label(y_pred_test)
 
 # Compute confusion matrix
 cm = confusion_matrix(t_test_label, y_label)
