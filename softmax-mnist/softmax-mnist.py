@@ -71,7 +71,7 @@ def softmax(a):
 
 # hyper parameters
 eta = 1.0
-num_iteration = 200
+num_iteration = 20
 minibatch_size = 500    # training data size is 50,000
 
 error_rates_train = []
@@ -85,18 +85,19 @@ for r in range(num_iteration):
     # ---
     # generate minibatch here
     # ---
-    tmp = np.hstack((X_train, t_train))
-    random.shuffle(tmp)
-    X_train_shuffle, t_train_shuffle = np.hsplit(tmp, np.array([-10]))
-    for i in range(n_train / minibatch_size):
-        X_train_batch = X_train_shuffle[minibatch_size * i:minibatch_size * (i+1)]
-        t_train_batch = t_train_shuffle[minibatch_size * i:minibatch_size * (i+1)]    
-    
+    num_batches = n_train / minibatch_size  # 1エポックあたりのミニバッチの個数
+    perm = np.random.permutation(n_train) # 添字配列[0, 1, ..., n_train-1] のシャッフル
+    X_train_batch = []
+    t_train_batch = []
+    for indices in np.array_split(perm, num_batches): # ランダム添字を分割しイテレーション
+        X_train_batch.append(X_train[indices])
+        t_train_batch.append(t_train[indices])    
+        
     # mini batch SGD training start
     for i in range(n_train / minibatch_size):
-        y_training = softmax(np.dot(X_train_batch, w.T))
-        error = (y_training - t_train_batch)
-        gradient = np.dot(error.T, X_train_batch)
+        y_training = softmax(np.dot(X_train_batch[i], w.T))
+        error = (y_training - t_train_batch[i])
+        gradient = np.dot(error.T, X_train_batch[i])
         w -= eta * gradient
         assert not np.any(np.isnan(w))
     # training done
