@@ -11,7 +11,6 @@ from sklearn import datasets
 from sklearn import cross_validation
 from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
-import random
 
 n_training = 60000
 
@@ -70,8 +69,8 @@ def softmax(a):
     #return np.exp(a - logsumexp(a, axis=0))
 
 # hyper parameters
-eta = 50.0
-num_iteration = 30
+eta = 4.0
+num_iteration = 50
 minibatch_size = 500    # training data size is 50,000
 
 correct_rates_train = []
@@ -102,7 +101,7 @@ for r in range(num_iteration):
         assert not np.any(np.isnan(w))
     # training done
         
-    eta *= 0.9  # update eta
+    eta *= 0.75  # update eta
 
     print 'l2 norm (w)', np.linalg.norm(w)
 
@@ -165,10 +164,10 @@ y_label = oneK2label(y_pred_test)
 # Compute confusion matrix
 cm = confusion_matrix(t_test_label, y_label)
 np.set_printoptions(precision=2)
-# print('Confusion matrix, without normalization')
-# print(cm)
-# plt.figure()
-# plot_confusion_matrix(cm)
+print('Confusion matrix, without normalization')
+print(cm)
+plt.figure()
+plot_confusion_matrix(cm)
 ### plot confusion matrix end ###
 
-# print "[test] correct rate", n_correct_test / float(n_test)
+print "[test] correct rate", n_correct_test / float(n_test)
