@@ -70,12 +70,12 @@ def softmax(a):
     #return np.exp(a - logsumexp(a, axis=0))
 
 # hyper parameters
-eta = 1.0
-num_iteration = 20
+eta = 50.0
+num_iteration = 30
 minibatch_size = 500    # training data size is 50,000
 
-error_rates_train = []
-error_rates_valid = []
+correct_rates_train = []
+correct_rates_valid = []
 
 # 'r' means iteration. The name 'r' come from PRML.
 for r in range(num_iteration):
@@ -109,22 +109,36 @@ for r in range(num_iteration):
     # calculate error rate of training data
     y_pred_train = softmax(np.dot(X_train, w.T))
     n_fails_train = np.sum(y_pred_train != t_train) / 2
-    error_rate_train = n_fails_train / float(n_train)
-    print "[train] error rate", error_rate_train
-    error_rates_train.append(error_rate_train)
+    correct_rate_train = 1 - (n_fails_train / float(n_train))
+    print "[train] correct rate", correct_rate_train
+    correct_rates_train.append(correct_rate_train)
 
     # calculate error rate of validation data
     y_pred_valid = softmax(np.dot(X_valid, w.T))
     n_fails_valid = np.sum(y_pred_valid != t_valid) / 2
-    error_rate_valid = n_fails_valid / float(n_valid)
-    print "[valid] error rate", error_rate_valid
-    error_rates_valid.append(error_rate_valid)
+    correct_rate_valid = 1 - (n_fails_valid / float(n_valid))
+    print "[valid] correct rate", correct_rate_valid
+    correct_rates_valid.append(correct_rate_valid)
 
+# plot weight vector
+fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(10, 20))
+for wk, ax in zip(w, axes.ravel()):
+    ax.matshow(wk[1:].reshape(28, 28), cmap=plt.cm.gray)
+
+# show correct rate of train and valid
+plt.figure()
+plt.plot(np.arange(num_iteration), np.array(correct_rates_train))
+plt.plot(np.arange(num_iteration), np.array(correct_rates_valid))
+plt.legend(['train', 'valid'])
+plt.show()
+
+#-- test --#
 # calculate error rate of test data
 y_pred_test = softmax(np.dot(X_test, w.T))
 n_fails_test = np.sum(y_pred_test != t_test) / 2
 n_correct_test = n_test - n_fails_test
 
+### plot confusion matrix start ###
 mnist_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -138,6 +152,7 @@ def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
+# To plot confusion matrix, convert format 1 of K to label array
 def oneK2label(y):
     result = np.zeros(len(y))
     for i in range(len(y)):
@@ -150,20 +165,10 @@ y_label = oneK2label(y_pred_test)
 # Compute confusion matrix
 cm = confusion_matrix(t_test_label, y_label)
 np.set_printoptions(precision=2)
-print('Confusion matrix, without normalization')
-print(cm)
-plt.figure()
-plot_confusion_matrix(cm)
+# print('Confusion matrix, without normalization')
+# print(cm)
+# plt.figure()
+# plot_confusion_matrix(cm)
+### plot confusion matrix end ###
 
-fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(10, 20))
-for wk, ax in zip(w, axes.ravel()):
-    ax.matshow(wk[1:].reshape(28, 28), cmap=plt.cm.gray)
-
-plt.figure()
-plt.plot(np.arange(num_iteration), np.array(error_rates_train))
-plt.plot(np.arange(num_iteration), np.array(error_rates_valid))
-plt.legend(['train', 'valid'])
-plt.show()
-
-print "[test] error rate", n_fails_test / float(n_test)
-print "[test] correct rate", n_correct_test / float(n_test)
+# print "[test] correct rate", n_correct_test / float(n_test)
