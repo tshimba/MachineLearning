@@ -9,9 +9,9 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn import cross_validation
+from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
 
-eta = 0.1
 n_training = 60000
 
 # Load the digits dataset
@@ -69,7 +69,7 @@ def softmax(a):
     #return np.exp(a - logsumexp(a, axis=0))
 
 eta = 1.0
-num_iteration = 50
+num_iteration = 500
 
 error_rates_train = []
 error_rates_valid = []
@@ -106,6 +106,36 @@ for r in range(num_iteration):
 y = softmax(np.dot(X_test, w.T))
 n_fails_test = np.sum(y != t_test) / 2
 n_correct_test = n_test - n_fails_test
+
+mnist_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
+def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
+    plt.imshow(cm, interpolation='nearest', cmap=cmap)
+    plt.title(title)
+    plt.colorbar()
+    tick_marks = np.arange(n_label)
+    plt.xticks(tick_marks, mnist_labels, rotation=45)
+    plt.yticks(tick_marks, mnist_labels)
+    plt.tight_layout()
+    plt.ylabel('True label')
+    plt.xlabel('Predicted label')
+
+def oneK2label(y):
+    result = np.zeros(len(y))
+    for i in range(len(y)):
+        result[i] = np.argmax(y[i])
+    return result
+
+t_test_label = oneK2label(t_test)
+y_label = oneK2label(y)
+
+# Compute confusion matrix
+cm = confusion_matrix(t_test_label, y_label)
+np.set_printoptions(precision=2)
+print('Confusion matrix, without normalization')
+print(cm)
+plt.figure()
+plot_confusion_matrix(cm)
 
 fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(10, 20))
 for wk, ax in zip(w, axes.ravel()):
