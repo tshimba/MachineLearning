@@ -107,14 +107,17 @@ for r in range(num_iteration):
 
     # calculate error rate of training data
     y_pred_train = softmax(np.dot(X_train, w.T))
-    n_fails_train = np.sum(y_pred_train != t_train) / 2
+    #n_fails_train = np.sum(y_pred_train != t_train) / 2
+    n_fails_train = np.sum(np.argmax(y_pred_train, axis=1) != 
+                                                    np.argmax(t_train, axis=1))
     correct_rate_train = 1 - (n_fails_train / float(n_train))
     print "[train] correct rate", correct_rate_train
     correct_rates_train.append(correct_rate_train)
 
     # calculate error rate of validation data
     y_pred_valid = softmax(np.dot(X_valid, w.T))
-    n_fails_valid = np.sum(y_pred_valid != t_valid) / 2
+    n_fails_valid = np.sum(np.argmax(y_pred_valid, axis=1) != 
+                                                    np.argmax(t_valid, axis=1))
     correct_rate_valid = 1 - (n_fails_valid / float(n_valid))
     print "[valid] correct rate", correct_rate_valid
     correct_rates_valid.append(correct_rate_valid)
@@ -134,7 +137,8 @@ plt.show()
 #-- test --#
 # calculate error rate of test data
 y_pred_test = softmax(np.dot(X_test, w.T))
-n_fails_test = np.sum(y_pred_test != t_test) / 2
+n_fails_test = np.sum(np.argmax(y_pred_test, axis=1) != 
+                                                    np.argmax(t_test, axis=1))
 n_correct_test = n_test - n_fails_test
 
 ### plot confusion matrix start ###
