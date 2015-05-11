@@ -5,22 +5,33 @@ Created on Tue Apr 28 12:57:12 2015
 @author: shimba
 """
 
+from __future__ import print_function
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn import cross_validation
 from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
-import random
 
 n_training = 60000
+
+# hyper parameters
+lr = 0.00000001       # Learning rate
+lr_decay_rate = 1.0
+num_iteration = 300    # number of epoch
+minibatch_size = 500    # training data size is 50,000
+# initialize weight vector parameters
+mu = 0.0                # mean
+stddev = 0.0            # standard deviation
+# cross validation
+n_train_rate = 0.9
 
 # Load the digits dataset
 # fetch_mldata ... dataname is on mldata.org, data_home
 # load 10 classes, from 0 to 9
-print 'loading mnist dataset'
+print('loading mnist dataset')
 mnist = datasets.fetch_mldata('MNIST original')
-print 'load done'
+print('load done')
 data = mnist.data
 targets = mnist.target
 
@@ -45,7 +56,7 @@ X_test = X[n_training:]
 t_test = t[n_training:]
 
 X_train, X_valid, t_train, t_valid = cross_validation.train_test_split(
-    X_training, t_training, random_state=0)
+    X_training, t_training, train_size=n_train_rate, random_state=0)
 
 n_train = len(X_train)
 n_valid = len(X_valid)
@@ -55,77 +66,99 @@ d_feature = len(X_train[-1])
 # feature vector dimension
 D = X_train.shape[-1]
 
+np.random.seed(0)
 # initialize weight vector
 # each w is vertical vector
-w = np.random.rand(n_label, D)
+w = stddev * np.random.randn(n_label, D)
 
 
 # softmax function
 # input a = np.dot(xi, w.T)
 def softmax(a):
-    #print logsumexp(a, axis=0).sha
     a_T = a.T
     b = logsumexp(a_T, axis=0)
     return np.exp(a_T - b).T
-    #return np.exp(a - logsumexp(a, axis=0))
 
-# hyper parameters
-eta = 1.0
-num_iteration = 20
-minibatch_size = 500    # training data size is 50,000
+correct_rates_train = []
+correct_rates_valid = []
 
-error_rates_train = []
-error_rates_valid = []
+# initialize correct rate of validation.
+# It is to store best scored w
+correct_rate_valid_best = 0
+w_best = w
 
 # 'r' means iteration. The name 'r' come from PRML.
 for r in range(num_iteration):
-    print "iteration", r+1
+    print("%3d" % int(r+1), end=" ")
     gradient = np.zeros((n_label, D))    # initialize gradient: 10 x 65
 
     # ---
     # generate minibatch here
     # ---
     num_batches = n_train / minibatch_size  # 1エポックあたりのミニバッチの個数
-    perm = np.random.permutation(n_train) # 添字配列[0, 1, ..., n_train-1] のシャッフル
+    # 添字配列[0, 1, ..., n_train-1] のシャッフル
+    perm = np.random.permutation(n_train)
     X_train_batchs = []
     t_train_batchs = []
-    for indices in np.array_split(perm, num_batches): # ランダム添字を分割しイテレーション
+    # ランダム添字を分割しイテレーション
+    for indices in np.array_split(perm, num_batches):
         X_train_batchs.append(X_train[indices])
-        t_train_batchs.append(t_train[indices])    
-        
+        t_train_batchs.append(t_train[indices])
+
     # mini batch SGD training start
     for X_train_batch, t_train_batch in zip(X_train_batchs, t_train_batchs):
         y_training = softmax(np.dot(X_train_batch, w.T))
         error = (y_training - t_train_batch)
         gradient = np.dot(error.T, X_train_batch)
-        w -= eta * gradient
+        w -= lr * gradient
         assert not np.any(np.isnan(w))
     # training done
-        
-    eta *= 0.9  # update eta
 
-    print 'l2 norm (w)', np.linalg.norm(w)
+    lr *= lr_decay_rate  # update eta
+
+    print("l2 norm %0.4f" % np.linalg.norm(w), end=" ")
 
     # calculate error rate of training data
     y_pred_train = softmax(np.dot(X_train, w.T))
-    n_fails_train = np.sum(y_pred_train != t_train) / 2
-    error_rate_train = n_fails_train / float(n_train)
-    print "[train] error rate", error_rate_train
-    error_rates_train.append(error_rate_train)
+    n_fails_train = np.sum(np.argmax(y_pred_train, axis=1) !=
+                           np.argmax(t_train, axis=1))
+    correct_rate_train = 1 - (n_fails_train / float(n_train))
+    print("[train] cor rate %0.4f" % correct_rate_train, end=" ")
+    correct_rates_train.append(correct_rate_train)
 
     # calculate error rate of validation data
     y_pred_valid = softmax(np.dot(X_valid, w.T))
-    n_fails_valid = np.sum(y_pred_valid != t_valid) / 2
-    error_rate_valid = n_fails_valid / float(n_valid)
-    print "[valid] error rate", error_rate_valid
-    error_rates_valid.append(error_rate_valid)
+    n_fails_valid = np.sum(np.argmax(y_pred_valid, axis=1) !=
+                           np.argmax(t_valid, axis=1))
+    correct_rate_valid = 1 - (n_fails_valid / float(n_valid))
+    if correct_rate_valid > correct_rate_valid_best:
+        w_best = w
+        correct_rate_valid_best = correct_rate_valid
+    print("[valid] cor rate %0.4f" % correct_rate_valid)
+    correct_rates_valid.append(correct_rate_valid)
 
+# plot weight vector
+fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(10, 20))
+for wk, ax in zip(w, axes.ravel()):
+    ax.matshow(wk[1:].reshape(28, 28), cmap=plt.cm.gray)
+
+# show correct rate of train and valid
+plt.figure()
+plt.plot(np.arange(num_iteration), np.array(correct_rates_train))
+plt.plot(np.arange(num_iteration), np.array(correct_rates_valid))
+plt.legend(['train', 'valid'])
+plt.show()
+
+# -- test -- #
 # calculate error rate of test data
-y_pred_test = softmax(np.dot(X_test, w.T))
-n_fails_test = np.sum(y_pred_test != t_test) / 2
+y_pred_test = softmax(np.dot(X_test, w_best.T))
+n_fails_test = np.sum(np.argmax(y_pred_test, axis=1) !=
+                      np.argmax(t_test, axis=1))
 n_correct_test = n_test - n_fails_test
 
+# -- plot confusion matrix start -- #
 mnist_labels = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
+
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
     plt.imshow(cm, interpolation='nearest', cmap=cmap)
@@ -138,6 +171,8 @@ def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
     plt.ylabel('True label')
     plt.xlabel('Predicted label')
 
+
+# To plot confusion matrix, convert format 1 of K to label array
 def oneK2label(y):
     result = np.zeros(len(y))
     for i in range(len(y)):
@@ -154,16 +189,6 @@ print('Confusion matrix, without normalization')
 print(cm)
 plt.figure()
 plot_confusion_matrix(cm)
+# -- plot confusion matrix end -- #
 
-fig, axes = plt.subplots(nrows=5, ncols=2, figsize=(10, 20))
-for wk, ax in zip(w, axes.ravel()):
-    ax.matshow(wk[1:].reshape(28, 28), cmap=plt.cm.gray)
-
-plt.figure()
-plt.plot(np.arange(num_iteration), np.array(error_rates_train))
-plt.plot(np.arange(num_iteration), np.array(error_rates_valid))
-plt.legend(['train', 'valid'])
-plt.show()
-
-print "[test] error rate", n_fails_test / float(n_test)
-print "[test] correct rate", n_correct_test / float(n_test)
+print("[test] correct rate %f" % (n_correct_test / float(n_test)))
