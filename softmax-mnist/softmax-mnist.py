@@ -16,15 +16,13 @@ from scipy.misc import logsumexp
 n_training = 60000
 
 # hyper parameters
-fix_seed = True         # Random state
-eta = 0.000000006       # Learning rate
-iteration_th = 350
-eta_update_rate = 0.998
-num_iteration = 1000     # number of epoch
+lr = 0.00000001       # Learning rate
+lr_decay_rate = 1.0
+num_iteration = 300    # number of epoch
 minibatch_size = 500    # training data size is 50,000
 # initialize weight vector parameters
-mu = 0.0                # average
-sigma = 0.0009          # distribution
+mu = 0.0                # mean
+stddev = 0.0            # standard deviation
 # cross validation
 n_train_rate = 0.9
 
@@ -57,12 +55,8 @@ t_training = t[:n_training]
 X_test = X[n_training:]
 t_test = t[n_training:]
 
-if fix_seed is True:
-    X_train, X_valid, t_train, t_valid = cross_validation.train_test_split(
-        X_training, t_training, train_size=n_train_rate, random_state=0)
-else:
-    X_train, X_valid, t_train, t_valid = cross_validation.train_test_split(
-        X_training, t_training, train_size=n_train_rate)
+X_train, X_valid, t_train, t_valid = cross_validation.train_test_split(
+    X_training, t_training, train_size=n_train_rate, random_state=0)
 
 n_train = len(X_train)
 n_valid = len(X_valid)
@@ -72,12 +66,10 @@ d_feature = len(X_train[-1])
 # feature vector dimension
 D = X_train.shape[-1]
 
+np.random.seed(0)
 # initialize weight vector
 # each w is vertical vector
-if fix_seed is True:
-    np.random.seed(0)
-
-w = np.random.normal(mu, sigma) * np.random.randn(n_label, D)
+w = stddev * np.random.randn(n_label, D)
 
 
 # softmax function
@@ -89,6 +81,11 @@ def softmax(a):
 
 correct_rates_train = []
 correct_rates_valid = []
+
+# initialize correct rate of validation.
+# It is to store best scored w
+correct_rate_valid_best = 0
+w_best = w
 
 # 'r' means iteration. The name 'r' come from PRML.
 for r in range(num_iteration):
@@ -113,12 +110,11 @@ for r in range(num_iteration):
         y_training = softmax(np.dot(X_train_batch, w.T))
         error = (y_training - t_train_batch)
         gradient = np.dot(error.T, X_train_batch)
-        w -= eta * gradient
+        w -= lr * gradient
         assert not np.any(np.isnan(w))
     # training done
 
-    if r > iteration_th:
-        eta *= eta_update_rate  # update eta
+    lr *= lr_decay_rate  # update eta
 
     print("l2 norm %0.4f" % np.linalg.norm(w), end=" ")
 
@@ -135,6 +131,9 @@ for r in range(num_iteration):
     n_fails_valid = np.sum(np.argmax(y_pred_valid, axis=1) !=
                            np.argmax(t_valid, axis=1))
     correct_rate_valid = 1 - (n_fails_valid / float(n_valid))
+    if correct_rate_valid > correct_rate_valid_best:
+        w_best = w
+        correct_rate_valid_best = correct_rate_valid
     print("[valid] cor rate %0.4f" % correct_rate_valid)
     correct_rates_valid.append(correct_rate_valid)
 
@@ -152,7 +151,7 @@ plt.show()
 
 # -- test -- #
 # calculate error rate of test data
-y_pred_test = softmax(np.dot(X_test, w.T))
+y_pred_test = softmax(np.dot(X_test, w_best.T))
 n_fails_test = np.sum(np.argmax(y_pred_test, axis=1) !=
                       np.argmax(t_test, axis=1))
 n_correct_test = n_test - n_fails_test
