@@ -12,6 +12,10 @@ from sklearn import cross_validation
 from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
 
+class NeuralNetwork:
+    def fit():
+        print 'under construction'
+
 n_training = 60000      # The number of training set
 
 # hyper parameters
