@@ -15,7 +15,7 @@ from scipy.misc import logsumexp
 n_training = 60000      # The number of training set
 
 # hyper parameters
-lr = 0.00000001         # Learning rate
+lr = 0.000001         # Learning rate
 num_iteration = 5     # number of epoch
 # initialize weight vector parameters
 mu = 0.0                # mean
@@ -67,7 +67,7 @@ d_feature = len(X_train[-1])    # dimention of feature vector
 # each w is vertical vector
 np.random.seed(0)
 w_1 = stddev * np.random.randn(M, d_feature)
-w_2 = stddev * np.random.randn(n_label, M)
+w_2 = stddev * np.random.randn(n_label, M+1)    # 1 for bias at hidden layer
 
 
 # for activation
@@ -101,6 +101,9 @@ for r in range(num_iteration):
     a_pred_training = np.dot(X_train, w_1.T)
     # convert with activation function
     z_pred_training = tanh(a_pred_training)
+    # add bias to z_pred_training
+    ones = np.ones((n_train, 1))
+    z_pred_training = np.hstack((ones, z_pred_training))
 
     # -- second layer -- #
     # calculate labels
@@ -110,7 +113,7 @@ for r in range(num_iteration):
     # error at layer 2
     error_2 = (y_pred_training - t_train)
     # error at layer 1
-    error_1 = (1 - z_pred_training*z_pred_training) * np.dot(error_2, w_2)
+    error_1 = (1 - z_pred_training[:,1:]*z_pred_training[:,1:]) * np.dot(error_2, w_2[:,1:])
     # gradient at layer 1
     gradient_1 = np.dot(X_train.T, error_1).T
     # gradient at layer 2
@@ -130,6 +133,9 @@ for r in range(num_iteration):
     # calculate error rate of training data
     a_pred_train = np.dot(X_train, w_1.T)
     z_pred_train = tanh(a_pred_train)
+    # add bias to z_pred_training
+    ones = np.ones((n_train, 1))
+    z_pred_train = np.hstack((ones, z_pred_train))
     y_pred_train = softmax(np.dot(z_pred_train, w_2.T))
 
     n_fails_train = np.sum(np.argmax(y_pred_train, axis=1) !=
@@ -141,6 +147,9 @@ for r in range(num_iteration):
     # calculate error rate of validation data
     a_pred_valid = np.dot(X_valid, w_1.T)
     z_pred_valid = tanh(a_pred_valid)
+    # add bias to z_pred_training
+    ones = np.ones((n_valid, 1))
+    z_pred_valid = np.hstack((ones, z_pred_valid))
     y_pred_valid = softmax(np.dot(z_pred_valid, w_2.T))
     n_fails_valid = np.sum(np.argmax(y_pred_valid, axis=1) !=
                            np.argmax(t_valid, axis=1))
@@ -163,6 +172,9 @@ plt.show()
 # calculate error rate of test data
 a_pred_test = np.dot(X_test, w_1_best.T)
 z_pred_test = tanh(a_pred_test)
+# add bias to z_pred_training
+ones = np.ones((n_test, 1))
+z_pred_test = np.hstack((ones, z_pred_test))
 y_pred_test = softmax(np.dot(z_pred_test, w_2_best.T))
 n_fails_test = np.sum(np.argmax(y_pred_test, axis=1) !=
                       np.argmax(t_test, axis=1))
