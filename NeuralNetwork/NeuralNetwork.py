@@ -15,15 +15,16 @@ from scipy.misc import logsumexp
 n_training = 60000      # The number of training set
 
 # hyper parameters
-lr = 0.000001         # Learning rate
-num_iteration = 5     # number of epoch
+lr = 0.00001         # Learning rate
+num_iteration = 20     # number of epoch
 # initialize weight vector parameters
 mu = 0.0                # mean
-stddev = 0.5            # standard deviation
+stddev_1 = 0.5            # standard deviation
+stddev_2 = 0.2
 # cross validation
 n_train_rate = 0.9      # ratio of training and validation data
 
-M = 1000     # number of hidden unit
+M = 100     # number of hidden unit
 
 # Load the digits dataset
 # fetch_mldata ... dataname is on mldata.org, data_home
@@ -66,8 +67,8 @@ d_feature = len(X_train[-1])    # dimention of feature vector
 # initialize weight vector
 # each w is vertical vector
 np.random.seed(0)
-w_1 = stddev * np.random.randn(M, d_feature)
-w_2 = stddev * np.random.randn(n_label, M+1)    # 1 for bias at hidden layer
+w_1 = stddev_1 * np.random.randn(M, d_feature)
+w_2 = stddev_2 * np.random.randn(n_label, M+1)    # 1 for bias at hidden layer
 
 
 # for activation
@@ -91,75 +92,84 @@ correct_rate_valid_best = 0
 w_best_1 = w_1
 w_best_2 = w_2
 
-# 'r' means iteration. The name 'r' come from PRML.
-for r in range(num_iteration):
-    print "iteration", r+1
+try:
+    # 'r' means iteration. The name 'r' come from PRML.
+    for r in range(num_iteration):
+        print "%3d" % int(r+1),
 
-    # - forward - #
-    # -- first layer -- #
-    # calculate activation
-    a_pred_training = np.dot(X_train, w_1.T)
-    # convert with activation function
-    z_pred_training = tanh(a_pred_training)
-    # add bias to z_pred_training
-    ones = np.ones((n_train, 1))
-    z_pred_training = np.hstack((ones, z_pred_training))
+        # - forward - #
+        # -- first layer -- #
+        # calculate activation
+        a = np.dot(X_train, w_1.T)
+        # convert with activation function
+        z = tanh(a)
+        # add bias to z_pred_training
+        ones = np.ones((n_train, 1))
+        z = np.hstack((ones, z))
 
-    # -- second layer -- #
-    # calculate labels
-    y_pred_training = softmax(np.dot(z_pred_training, w_2.T))
+        # -- second layer -- #
+        # calculate labels
+        y = softmax(np.dot(z, w_2.T))
 
-    # - backprop - #
-    # error at layer 2
-    error_2 = (y_pred_training - t_train)
-    # error at layer 1
-    error_1 = (1 - z_pred_training[:,1:]*z_pred_training[:,1:]) * np.dot(error_2, w_2[:,1:])
-    # gradient at layer 1
-    gradient_1 = np.dot(X_train.T, error_1).T
-    # gradient at layer 2
-    gradient_2 = np.dot(z_pred_training.T, error_2).T
+        # - backprop - #
+        # error at layer 2
+        error_2 = (y - t_train)
+        # error at layer 1
+        error_1 = (1 - z[:,1:]**2) * np.dot(error_2, w_2[:,1:])
+        # gradient at layer 1
+        gradient_1 = np.dot(X_train.T, error_1).T
+        # gradient at layer 2
+        gradient_2 = np.dot(z.T, error_2).T
 
-    # momentum
+        # momentum
 
-    w_1 -= lr * gradient_1
-    w_2 -= lr * gradient_2
+        w_1 -= lr * gradient_1
+        w_2 -= lr * gradient_2
 
-    assert not np.any(np.isnan(w_1))
-    assert not np.any(np.isnan(w_1))
+        assert not np.any(np.isnan(w_1))
+        assert not np.any(np.isnan(w_1))
 
-    print "l2 norm w1", np.linalg.norm(w_1)
-    print "l2 norm w2", np.linalg.norm(w_2)
+        print "[w1l2] %5.4f" % np.linalg.norm(w_1),
+        print "[w2l2] %5.4f" % np.linalg.norm(w_2),
 
-    # calculate error rate of training data
-    a_pred_train = np.dot(X_train, w_1.T)
-    z_pred_train = tanh(a_pred_train)
-    # add bias to z_pred_training
-    ones = np.ones((n_train, 1))
-    z_pred_train = np.hstack((ones, z_pred_train))
-    y_pred_train = softmax(np.dot(z_pred_train, w_2.T))
+        print "[g1l2] %5.4f" % np.linalg.norm(gradient_1),
+        print "[g2l2] %5.4f" % np.linalg.norm(gradient_2),
 
-    n_fails_train = np.sum(np.argmax(y_pred_train, axis=1) !=
-                           np.argmax(t_train, axis=1))
-    correct_rate_train = 1 - (n_fails_train / float(n_train))
-    print "[train] cor rate ", correct_rate_train
-    correct_rates_train.append(correct_rate_train)
+        # calculate error rate of training data
+        a = np.dot(X_train, w_1.T)
+        z = tanh(a)
+        # add bias to z_pred_training
+        ones = np.ones((n_train, 1))
+        z = np.hstack((ones, z))
+        y = softmax(np.dot(z, w_2.T))
 
-    # calculate error rate of validation data
-    a_pred_valid = np.dot(X_valid, w_1.T)
-    z_pred_valid = tanh(a_pred_valid)
-    # add bias to z_pred_training
-    ones = np.ones((n_valid, 1))
-    z_pred_valid = np.hstack((ones, z_pred_valid))
-    y_pred_valid = softmax(np.dot(z_pred_valid, w_2.T))
-    n_fails_valid = np.sum(np.argmax(y_pred_valid, axis=1) !=
-                           np.argmax(t_valid, axis=1))
-    correct_rate_valid = 1 - (n_fails_valid / float(n_valid))
-    if correct_rate_valid > correct_rate_valid_best:
-        w_1_best = w_1
-        w_2_best = w_2
-        correct_rate_valid_best = correct_rate_valid
-    print "[valid] cor rate ", correct_rate_valid
-    correct_rates_valid.append(correct_rate_valid)
+        n_fails_train = np.sum(np.argmax(y, axis=1) !=
+                               np.argmax(t_train, axis=1))
+        correct_rate_train = 1 - (n_fails_train / float(n_train))
+        print "[train] %5.4f" % correct_rate_train,
+        correct_rates_train.append(correct_rate_train)
+
+        # calculate error rate of validation data
+        a = np.dot(X_valid, w_1.T)
+        z = tanh(a)
+        # add bias to z_pred_training
+        ones = np.ones((n_valid, 1))
+        z = np.hstack((ones, z))
+        y = softmax(np.dot(z, w_2.T))
+        n_fails_valid = np.sum(np.argmax(y, axis=1) !=
+                               np.argmax(t_valid, axis=1))
+        correct_rate_valid = 1 - (n_fails_valid / float(n_valid))
+        if correct_rate_valid > correct_rate_valid_best:
+            w_1_best = w_1
+            w_2_best = w_2
+            correct_rate_valid_best = correct_rate_valid
+        print "[valid] %5.4f" % correct_rate_valid
+        correct_rates_valid.append(correct_rate_valid)
+
+except KeyboardInterrupt:
+    pass
+
+print ""
 
 # show correct rate of train and valid
 plt.figure()
@@ -170,13 +180,13 @@ plt.show()
 
 # -- test -- #
 # calculate error rate of test data
-a_pred_test = np.dot(X_test, w_1_best.T)
-z_pred_test = tanh(a_pred_test)
+a = np.dot(X_test, w_1_best.T)
+z = tanh(a)
 # add bias to z_pred_training
 ones = np.ones((n_test, 1))
-z_pred_test = np.hstack((ones, z_pred_test))
-y_pred_test = softmax(np.dot(z_pred_test, w_2_best.T))
-n_fails_test = np.sum(np.argmax(y_pred_test, axis=1) !=
+z = np.hstack((ones, z))
+y = softmax(np.dot(z, w_2_best.T))
+n_fails_test = np.sum(np.argmax(y, axis=1) !=
                       np.argmax(t_test, axis=1))
 n_correct_test = n_test - n_fails_test
 
@@ -204,7 +214,7 @@ def oneK2label(y):
     return result
 
 t_test_label = oneK2label(t_test)
-y_label = oneK2label(y_pred_test)
+y_label = oneK2label(y)
 
 # Compute confusion matrix
 cm = confusion_matrix(t_test_label, y_label)
