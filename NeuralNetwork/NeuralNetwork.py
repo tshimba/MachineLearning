@@ -130,8 +130,8 @@ try:
             # gradient at layer 2
             gradient_2 = np.dot(z.T, error_2).T
 
-        w_1 -= lr * gradient_1
-        w_2 -= lr * gradient_2
+            w_1 -= lr * gradient_1
+            w_2 -= lr * gradient_2
 
         assert not np.any(np.isnan(w_1))
         assert not np.any(np.isnan(w_1))
