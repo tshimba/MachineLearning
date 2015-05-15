@@ -94,7 +94,8 @@ w_best_1 = w_1
 w_best_2 = w_2
 
 
-def SGD(X_train=X_train, t_train=t_train, n_train=n_train, minibatch_size=minibatch_size):
+def initMinibatch(X_train=X_train, t_train=t_train, n_train=n_train,
+                  minibatch_size=minibatch_size):
     num_batches = n_train / minibatch_size  # 1エポックあたりのミニバッチの個数
     # 添字配列[0, 1, ..., n_train-1] のシャッフル
     perm = np.random.permutation(n_train)
@@ -112,7 +113,7 @@ try:
         print "%3d" % int(r+1),
 
         # generate minibatch here
-        X_train_batchs, t_train_batchs = SGD()
+        X_train_batchs, t_train_batchs = initMinibatch()
 
         # mini batch SGD training start
         for X_train_batch, t_train_batch in zip(X_train_batchs, t_train_batchs):
