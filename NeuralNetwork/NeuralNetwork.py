@@ -170,6 +170,7 @@ try:
             w_1_best = w_1
             w_2_best = w_2
             correct_rate_valid_best = correct_rate_valid
+            r_best = r+1
         print "[valid] %5.4f" % correct_rate_valid
         correct_rates_valid.append(correct_rate_valid)
 
@@ -177,6 +178,9 @@ except KeyboardInterrupt:
     pass
 
 print ""
+
+print "Best model: r = %d, correct rate = %f" % (r + 1,
+                                                 correct_rate_valid_best)
 
 # show correct rate of train and valid
 plt.figure()
