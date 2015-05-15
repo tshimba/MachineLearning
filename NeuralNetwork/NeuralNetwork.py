@@ -96,7 +96,7 @@ w_best_2 = w_2
 try:
     # 'r' means iteration. The name 'r' come from PRML.
     for r in range(num_iteration):
-        print "%3d" % int(r+1),
+        print "iteration %3d" % (r+1)
 
         num_batches = n_train / minibatch_size  # 1エポックあたりのミニバッチの個数
         # 添字配列[0, 1, ..., n_train-1] のシャッフル
@@ -136,11 +136,11 @@ try:
         assert not np.any(np.isnan(w_1))
         assert not np.any(np.isnan(w_1))
 
-        print "[w1l2] %5.4f" % np.linalg.norm(w_1),
-        print "[w2l2] %5.4f" % np.linalg.norm(w_2),
+        print "[w1l2] %5.4f" % np.linalg.norm(w_1)
+        print "[w2l2] %5.4f" % np.linalg.norm(w_2)
 
-        print "[g1l2] %5.4f" % np.linalg.norm(gradient_1),
-        print "[g2l2] %5.4f" % np.linalg.norm(gradient_2),
+        print "[g1l2] %5.4f" % np.linalg.norm(gradient_1)
+        print "[g2l2] %5.4f" % np.linalg.norm(gradient_2)
 
         # calculate error rate of training data
         a = np.dot(X_train, w_1.T)
@@ -153,7 +153,7 @@ try:
         n_fails_train = np.sum(np.argmax(y, axis=1) !=
                                np.argmax(t_train, axis=1))
         correct_rate_train = 1 - (n_fails_train / float(n_train))
-        print "[train] %5.4f" % correct_rate_train,
+        print "[train] %5.4f" % correct_rate_train
         correct_rates_train.append(correct_rate_train)
 
         # calculate error rate of validation data
@@ -173,11 +173,10 @@ try:
             r_best = r+1
         print "[valid] %5.4f" % correct_rate_valid
         correct_rates_valid.append(correct_rate_valid)
+        print
 
 except KeyboardInterrupt:
     pass
-
-print ""
 
 print "Best model: r = %d, correct rate = %f" % (r + 1,
                                                  correct_rate_valid_best)
