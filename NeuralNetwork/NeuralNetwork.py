@@ -15,8 +15,9 @@ from scipy.misc import logsumexp
 n_training = 60000      # The number of training set
 
 # hyper parameters
-lr = 0.00001         # Learning rate
+lr = 0.001         # Learning rate
 num_iteration = 20     # number of epoch
+minibatch_size = 500
 # initialize weight vector parameters
 mu = 0.0                # mean
 stddev_1 = 0.5            # standard deviation
@@ -95,33 +96,39 @@ w_best_2 = w_2
 try:
     # 'r' means iteration. The name 'r' come from PRML.
     for r in range(num_iteration):
-        print "%3d" % int(r+1),
+        print "iteration %3d" % (r+1)
 
-        # - forward - #
-        # -- first layer -- #
-        # calculate activation
-        a = np.dot(X_train, w_1.T)
-        # convert with activation function
-        z = tanh(a)
-        # add bias to z_pred_training
-        ones = np.ones((n_train, 1))
-        z = np.hstack((ones, z))
+        num_batches = n_train / minibatch_size  # 1エポックあたりのミニバッチの個数
+        # 添字配列[0, 1, ..., n_train-1] のシャッフル
+        perm = np.random.permutation(n_train)
+        # ランダム添字を分割しイテレーション
+        # mini batch SGD training
+        for indices in np.array_split(perm, num_batches):
+            X_batch = X_train[indices]
+            t_batch = t_train[indices]
+            # - forward pass - #
+            # -- first layer -- #
+            # calculate activation
+            a = np.dot(X_batch, w_1.T)
+            # convert with activation function
+            z = tanh(a)
+            # add bias to z_pred_training
+            ones = np.ones((minibatch_size, 1))
+            z = np.hstack((ones, z))
 
-        # -- second layer -- #
-        # calculate labels
-        y = softmax(np.dot(z, w_2.T))
+            # -- second layer -- #
+            # calculate labels
+            y = softmax(np.dot(z, w_2.T))
 
-        # - backprop - #
-        # error at layer 2
-        error_2 = (y - t_train)
-        # error at layer 1
-        error_1 = (1 - z[:,1:]**2) * np.dot(error_2, w_2[:,1:])
-        # gradient at layer 1
-        gradient_1 = np.dot(X_train.T, error_1).T
-        # gradient at layer 2
-        gradient_2 = np.dot(z.T, error_2).T
-
-        # momentum
+            # - backward pass - #
+            # error at layer 2
+            error_2 = (y - t_batch)
+            # error at layer 1
+            error_1 = (1 - z[:, 1:]**2) * np.dot(error_2, w_2[:, 1:])
+            # gradient at layer 1
+            gradient_1 = np.dot(X_batch.T, error_1).T
+            # gradient at layer 2
+            gradient_2 = np.dot(z.T, error_2).T
 
         w_1 -= lr * gradient_1
         w_2 -= lr * gradient_2
@@ -129,11 +136,11 @@ try:
         assert not np.any(np.isnan(w_1))
         assert not np.any(np.isnan(w_1))
 
-        print "[w1l2] %5.4f" % np.linalg.norm(w_1),
-        print "[w2l2] %5.4f" % np.linalg.norm(w_2),
+        print "[w1l2] %5.4f" % np.linalg.norm(w_1)
+        print "[w2l2] %5.4f" % np.linalg.norm(w_2)
 
-        print "[g1l2] %5.4f" % np.linalg.norm(gradient_1),
-        print "[g2l2] %5.4f" % np.linalg.norm(gradient_2),
+        print "[g1l2] %5.4f" % np.linalg.norm(gradient_1)
+        print "[g2l2] %5.4f" % np.linalg.norm(gradient_2)
 
         # calculate error rate of training data
         a = np.dot(X_train, w_1.T)
@@ -146,7 +153,7 @@ try:
         n_fails_train = np.sum(np.argmax(y, axis=1) !=
                                np.argmax(t_train, axis=1))
         correct_rate_train = 1 - (n_fails_train / float(n_train))
-        print "[train] %5.4f" % correct_rate_train,
+        print "[train] %5.4f" % correct_rate_train
         correct_rates_train.append(correct_rate_train)
 
         # calculate error rate of validation data
@@ -163,13 +170,16 @@ try:
             w_1_best = w_1
             w_2_best = w_2
             correct_rate_valid_best = correct_rate_valid
+            r_best = r+1
         print "[valid] %5.4f" % correct_rate_valid
         correct_rates_valid.append(correct_rate_valid)
+        print
 
 except KeyboardInterrupt:
     pass
 
-print ""
+print "Best model: r = %d, correct rate = %f" % (r + 1,
+                                                 correct_rate_valid_best)
 
 # show correct rate of train and valid
 plt.figure()
