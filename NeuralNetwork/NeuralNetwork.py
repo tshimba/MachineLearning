@@ -15,8 +15,9 @@ from scipy.misc import logsumexp
 n_training = 60000      # The number of training set
 
 # hyper parameters
-lr = 0.00001         # Learning rate
+lr = 0.001         # Learning rate
 num_iteration = 20     # number of epoch
+minibatch_size = 500
 # initialize weight vector parameters
 mu = 0.0                # mean
 stddev_1 = 0.5            # standard deviation
@@ -92,36 +93,53 @@ correct_rate_valid_best = 0
 w_best_1 = w_1
 w_best_2 = w_2
 
+
+def SGD(X_train=X_train, t_train=t_train, n_train=n_train, minibatch_size=minibatch_size):
+    num_batches = n_train / minibatch_size  # 1エポックあたりのミニバッチの個数
+    # 添字配列[0, 1, ..., n_train-1] のシャッフル
+    perm = np.random.permutation(n_train)
+    X_train_batchs = []
+    t_train_batchs = []
+    # ランダム添字を分割しイテレーション
+    for indices in np.array_split(perm, num_batches):
+        X_train_batchs.append(X_train[indices])
+        t_train_batchs.append(t_train[indices])
+    return X_train_batchs, t_train_batchs
+
 try:
     # 'r' means iteration. The name 'r' come from PRML.
     for r in range(num_iteration):
         print "%3d" % int(r+1),
 
-        # - forward - #
-        # -- first layer -- #
-        # calculate activation
-        a = np.dot(X_train, w_1.T)
-        # convert with activation function
-        z = tanh(a)
-        # add bias to z_pred_training
-        ones = np.ones((n_train, 1))
-        z = np.hstack((ones, z))
+        # generate minibatch here
+        X_train_batchs, t_train_batchs = SGD()
 
-        # -- second layer -- #
-        # calculate labels
-        y = softmax(np.dot(z, w_2.T))
+        # mini batch SGD training start
+        for X_train_batch, t_train_batch in zip(X_train_batchs, t_train_batchs):
+            # - forward - #
+            # -- first layer -- #
+            # calculate activation
+            a = np.dot(X_train_batch, w_1.T)
+            # convert with activation function
+            z = tanh(a)
+            # add bias to z_pred_training
+            ones = np.ones((minibatch_size, 1))
+            z = np.hstack((ones, z))
 
-        # - backprop - #
-        # error at layer 2
-        error_2 = (y - t_train)
-        # error at layer 1
-        error_1 = (1 - z[:,1:]**2) * np.dot(error_2, w_2[:,1:])
-        # gradient at layer 1
-        gradient_1 = np.dot(X_train.T, error_1).T
-        # gradient at layer 2
-        gradient_2 = np.dot(z.T, error_2).T
+            # -- second layer -- #
+            # calculate labels
+            y = softmax(np.dot(z, w_2.T))
 
-        # momentum
+            # - backprop - #
+            # error at layer 2
+            error_2 = (y - t_train_batch)
+            # error at layer 1
+            error_1 = (1 - z[:,1:]**2) * np.dot(error_2, w_2[:,1:])
+            # gradient at layer 1
+            gradient_1 = np.dot(X_train_batch.T, error_1).T
+            # gradient at layer 2
+            gradient_2 = np.dot(z.T, error_2).T
+        # training done
 
         w_1 -= lr * gradient_1
         w_2 -= lr * gradient_2
