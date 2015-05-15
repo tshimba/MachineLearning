@@ -98,19 +98,18 @@ try:
     for r in range(num_iteration):
         print "%3d" % int(r+1),
 
-        # generate minibatch here
         num_batches = n_train / minibatch_size  # 1エポックあたりのミニバッチの個数
         # 添字配列[0, 1, ..., n_train-1] のシャッフル
         perm = np.random.permutation(n_train)
-        X_train_batchs = []
-        t_train_batchs = []
         # ランダム添字を分割しイテレーション
         # mini batch SGD training
         for indices in np.array_split(perm, num_batches):
-            # - forward - #
+            X_batch = X_train[indices]
+            t_batch = t_train[indices]
+            # - forward pass - #
             # -- first layer -- #
             # calculate activation
-            a = np.dot(X_train[indices], w_1.T)
+            a = np.dot(X_batch, w_1.T)
             # convert with activation function
             z = tanh(a)
             # add bias to z_pred_training
@@ -121,13 +120,13 @@ try:
             # calculate labels
             y = softmax(np.dot(z, w_2.T))
 
-            # - backprop - #
+            # - backward pass - #
             # error at layer 2
-            error_2 = (y - t_train[indices])
+            error_2 = (y - t_batch)
             # error at layer 1
             error_1 = (1 - z[:, 1:]**2) * np.dot(error_2, w_2[:, 1:])
             # gradient at layer 1
-            gradient_1 = np.dot(X_train[indices].T, error_1).T
+            gradient_1 = np.dot(X_batch.T, error_1).T
             # gradient at layer 2
             gradient_2 = np.dot(z.T, error_2).T
 
