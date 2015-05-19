@@ -11,6 +11,7 @@ from sklearn import datasets
 from sklearn import cross_validation
 from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
+import time
 
 
 def softmax(a):
@@ -114,6 +115,7 @@ class NeuralNetworkClassifier(object):
         try:
             # 'r' means iteration. The name 'r' come from PRML.
             for r in range(num_iteration):
+                measure_start = time.clock()
                 print "iteration %3d" % (r+1)
 
                 # numbers of minibatch per 1 epoch
@@ -179,6 +181,10 @@ class NeuralNetworkClassifier(object):
                     w_2_best = self.w_2
                     score_valid_best = score_valid
                     r_best = r+1
+
+                measure_stop = time.clock()
+                print measure_stop - measure_start
+
                 print
 
         except KeyboardInterrupt:
