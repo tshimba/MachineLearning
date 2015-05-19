@@ -88,9 +88,11 @@ class NeuralNetworkClassifier(object):
         # initialize weight vector
         # each w is vertical vector
         np.random.seed(0)
-        self.w_1 = std_w1_init * np.random.randn(self.M, d_feature)
+        self.w_1 = std_w1_init * np.random.randn(self.M,
+                                                 d_feature).astype(np.float32)
         # 1 for bias at hidden layer
-        self.w_2 = std_w2_init * np.random.randn(n_classes, self.M+1)
+        self.w_2 = std_w2_init * np.random.randn(n_classes,
+                                                 self.M+1).astype(np.float32)
 
         self.v_1 = 0
         self.v_2 = 0
@@ -109,8 +111,8 @@ class NeuralNetworkClassifier(object):
         # add one dimention to future vector for bias
         n_train = len(data_train)                  # number of all data
 
-        ones = np.ones((n_train, 1))
-        X_train = np.hstack((ones, data_train))
+        ones = np.ones((n_train, 1), dtype=np.float32)
+        X_train = np.hstack((ones, data_train)).astype(np.float32)
 
         try:
             # 'r' means iteration. The name 'r' come from PRML.
