@@ -13,9 +13,12 @@ from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
 
 
-# softmax function
-# input a = np.dot(xi, w.T)
 def softmax(a):
+    '''
+    softmax function
+    Usage:
+    input a is np.dot(xi, w.T)
+    '''
     a_T = a.T
     b = logsumexp(a_T, axis=0)
     return np.exp(a_T - b).T
@@ -35,9 +38,11 @@ def label_to_onehot(labels):
 
 
 def load_mnist():
-    # Load the digits dataset
-    # fetch_mldata ... dataname is on mldata.org, data_home
-    # load 10 classes, from 0 to 9
+    '''
+    Load the digits dataset
+    fetch_mldata ... dataname is on mldata.org, data_home
+    load 10 classes, from 0 to 9
+    '''
     print 'loading mnist dataset'
     mnist = datasets.fetch_mldata('MNIST original')
     print 'load done'
@@ -93,7 +98,6 @@ class NeuralNetworkClassifier(object):
 
         # t convert to 1 hot
         t_train = label_to_onehot(label_train)
-        t_valid = label_to_onehot(label_valid)
 
         # X: feature vectors
         # add one dimention to future vector for bias
@@ -107,11 +111,11 @@ class NeuralNetworkClassifier(object):
             for r in range(num_iteration):
                 print "iteration %3d" % (r+1)
 
-                # 1ã¨ããã¯ããããããããããåæ°
+                # numbers of minibatch per 1 epoch
                 num_batches = n_train / minibatch_size
-                # æ·»å­éå[0, 1, ..., n_train-1] ã®ã·ã£ãã«
+                # shuffle the list of indices
                 perm = np.random.permutation(n_train)
-                # ã©ã³ããæ·»å­ãå²ãã¤ã¬ã¼ã·ã§ã³
+                # separate randomized indices and loop processing
                 # mini batch SGD training
                 for indices in np.array_split(perm, num_batches):
                     X_batch = X_train[indices]
@@ -187,7 +191,10 @@ class NeuralNetworkClassifier(object):
         self.w_2 = w_2_best
 
     def predict_proba(self, X):
-        # X: feature vectors
+        '''
+        input ... X: feature vectors without bias
+        outpu ... predicted label probabilities
+        '''
         # add one dimention to future vector for bias
         n = len(X)                  # number of all data
         ones = np.ones((n, 1))
@@ -202,11 +209,20 @@ class NeuralNetworkClassifier(object):
         return y
 
     def predict(self, X):
+        '''
+        input ... X: feature vectors without bias
+        output ... predicted labels
+        '''
         y = self.predict_proba(X)
         labels = np.argmax(y, axis=1)
         return labels
 
     def score(self, X, t):
+        '''
+        input ... X: feature vectors without corresponding point of bias
+                  t: target labels
+        output ... correct rate
+        '''
         labels = self.predict(X)
         count_correct = np.sum(labels == t)
         return count_correct / float(len(X))
@@ -214,11 +230,13 @@ class NeuralNetworkClassifier(object):
 
 if __name__ == "__main__":
 
-    # cross validation
-    n_train_rate = 0.9      # ratio of training and validation data
+    # cross validation parameter, ratio of training and validation data
+    n_train_rate = 0.9
 
+    # load mnist data. data and target labels
     data_train, target_train, data_test, target_test = load_mnist()
 
+    # cross validation
     data_train, data_valid, label_train, label_valid = \
         cross_validation.train_test_split(data_train, target_train,
                                           train_size=n_train_rate,
