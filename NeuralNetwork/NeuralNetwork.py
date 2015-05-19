@@ -73,10 +73,12 @@ class NeuralNetworkClassifier(object):
         self.M = M
         self.w_1 = None
         self.w_2 = None
+        self.v_1 = None
+        self.v_2 = None
 
-    def fit(self, data_train, label_train, data_valid, label_valid, lr=0.001,
-            num_iteration=20, minibatch_size=500, std_w1_init=0.5,
-            std_w2_init=0.2):
+    def fit(self, data_train, label_train, data_valid, label_valid,
+            lr=0.001, num_iteration=20, minibatch_size=500, mc=0.0,
+            std_w1_init=0.5, std_w2_init=0.2):
 
         n_classes = len(np.unique(label_train))
         n_train = len(data_train)              # number of training dataset
@@ -88,6 +90,9 @@ class NeuralNetworkClassifier(object):
         self.w_1 = std_w1_init * np.random.randn(self.M, d_feature)
         # 1 for bias at hidden layer
         self.w_2 = std_w2_init * np.random.randn(n_classes, self.M+1)
+
+        self.v_1 = 0
+        self.v_2 = 0
 
         scores_train = []
         scores_valid = []
@@ -145,8 +150,10 @@ class NeuralNetworkClassifier(object):
                     # gradient at layer 2
                     gradient_2 = np.dot(z.T, error_2).T
 
-                    self.w_1 -= lr * gradient_1
-                    self.w_2 -= lr * gradient_2
+                    self.v_1 = mc * self.v_1 - (1 - mc) * lr * gradient_1
+                    self.v_2 = mc * self.v_2 - (1 - mc) * lr * gradient_2
+                    self.w_1 += self.v_1
+                    self.w_2 += self.v_2
 
                 assert not np.any(np.isnan(self.w_1))
                 assert not np.any(np.isnan(self.w_1))
@@ -245,9 +252,9 @@ if __name__ == "__main__":
     n_test = len(data_test)            # number of test dataset
 
     classifier = NeuralNetworkClassifier(M=100)
-    classifier.fit(data_train, label_train, data_valid, label_valid, lr=0.001,
-                   num_iteration=5, minibatch_size=500, std_w1_init=0.5,
-                   std_w2_init=0.2)
+    classifier.fit(data_train, label_train, data_valid, label_valid,
+                   lr=0.0007, num_iteration=500, minibatch_size=500, mc=0.0,
+                   std_w1_init=1.05, std_w2_init=0.6)
 
     # -- test -- #
     # calculate error rate of test data
