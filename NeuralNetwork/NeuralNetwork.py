@@ -79,7 +79,7 @@ class NeuralNetworkClassifier(object):
 
     def fit(self, data_train, label_train, data_valid, label_valid,
             lr=0.001, num_iteration=20, minibatch_size=500, mc=0.0,
-            std_w1_init=0.5, std_w2_init=0.2):
+            regularization=0.0, std_w1_init=0.5, std_w2_init=0.2):
 
         n_classes = len(np.unique(label_train))
         n_train = len(data_train)              # number of training dataset
@@ -150,9 +150,11 @@ class NeuralNetworkClassifier(object):
                     error_1 = (1 - z[:, 1:] ** 2) * np.dot(error_2,
                                                            self.w_2[:, 1:])
                     # gradient at layer 1
-                    gradient_1 = np.dot(X_batch.T, error_1).T
+                    gradient_1 = np.dot(X_batch.T, error_1).T + \
+                                 regularization * self.w_1 / 2
                     # gradient at layer 2
-                    gradient_2 = np.dot(z.T, error_2).T
+                    gradient_2 = np.dot(z.T, error_2).T + \
+                                 regularization * self.w_2 / 2
 
                     self.v_1 = mc * self.v_1 - (1 - mc) * lr * gradient_1
                     self.v_2 = mc * self.v_2 - (1 - mc) * lr * gradient_2
@@ -261,8 +263,8 @@ if __name__ == "__main__":
 
     classifier = NeuralNetworkClassifier(M=100)
     classifier.fit(data_train, label_train, data_valid, label_valid,
-                   lr=0.0007, num_iteration=500, minibatch_size=500, mc=0.0,
-                   std_w1_init=1.05, std_w2_init=0.6)
+                   lr=0.0001, num_iteration=200, minibatch_size=500, mc=0.9,
+                   regularization=1.0, std_w1_init=1.05, std_w2_init=0.6)
 
     # -- test -- #
     # calculate error rate of test data
