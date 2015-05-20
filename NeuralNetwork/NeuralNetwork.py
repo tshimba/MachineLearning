@@ -151,10 +151,10 @@ class NeuralNetworkClassifier(object):
                                                            self.w_2[:, 1:])
                     # gradient at layer 1
                     gradient_1 = np.dot(X_batch.T, error_1).T + \
-                                 regularization * self.w_1 / 2
+                        regularization * self.w_1
                     # gradient at layer 2
                     gradient_2 = np.dot(z.T, error_2).T + \
-                                 regularization * self.w_2 / 2
+                        regularization * self.w_2
 
                     self.v_1 = mc * self.v_1 - (1 - mc) * lr * gradient_1
                     self.v_2 = mc * self.v_2 - (1 - mc) * lr * gradient_2
