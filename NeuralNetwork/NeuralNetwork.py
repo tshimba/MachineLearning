@@ -32,7 +32,7 @@ def label_to_onehot(labels):
     '''
     n_examples = len(labels)
     n_classes = len(np.unique(labels))
-    onehot = np.zeros((n_examples, n_classes))
+    onehot = np.zeros((n_examples, n_classes), dtype=np.float32)
     for i, label in enumerate(labels):
         onehot[i].put(label, 1)
     return onehot
@@ -54,7 +54,8 @@ def load_mnist():
     target_train = mnist.target[:n_train]
     data_test = mnist.data[n_train:]
     target_test = mnist.target[n_train:]
-    return data_train, target_train, data_test, target_test
+    return data_train.astype(np.float32), target_train.astype(np.float32), \
+        data_test.astype(np.float32), target_test.astype(np.float32)
 
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -136,7 +137,7 @@ class NeuralNetworkClassifier(object):
                     # convert with activation function
                     z = np.tanh(a)
                     # add bias to z_pred_training
-                    ones = np.ones((minibatch_size, 1))
+                    ones = np.ones((minibatch_size, 1), dtype=np.float32)
                     z = np.hstack((ones, z))
 
                     # -- second layer -- #
@@ -214,13 +215,13 @@ class NeuralNetworkClassifier(object):
         '''
         # add one dimention to future vector for bias
         n = len(X)                  # number of all data
-        ones = np.ones((n, 1))
+        ones = np.ones((n, 1), dtype=np.float32)
         X = np.hstack((ones, X))
 
         a = np.dot(X, self.w_1.T)
         z = np.tanh(a)
         # add bias to z_pred_training
-        ones = np.ones((len(X), 1))
+        ones = np.ones((len(X), 1), dtype=np.float32)
         z = np.hstack((ones, z))
         y = softmax(np.dot(z, self.w_2.T))
         return y
