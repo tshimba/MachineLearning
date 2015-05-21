@@ -201,7 +201,7 @@ class NeuralNetworkClassifier(object):
         # show correct rate of train and valid
         plt.figure()
         plt.plot(np.arange(len(scores_train)), np.array(scores_train))
-        plt.plot(np.arange(len(scores_train)), np.array(scores_valid))
+        plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
         plt.legend(['train', 'valid'])
         plt.show()
 
