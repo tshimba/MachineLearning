@@ -262,10 +262,10 @@ if __name__ == "__main__":
 
     n_test = len(data_test)            # number of test dataset
 
-    classifier = NeuralNetworkClassifier(M=100)
+    classifier = NeuralNetworkClassifier(M=350)
     classifier.fit(data_train, label_train, data_valid, label_valid,
-                   lr=0.0001, num_iteration=200, minibatch_size=500, mc=0.9,
-                   regularization=1.0, std_w1_init=1.05, std_w2_init=0.6)
+                   lr=0.00001, num_iteration=200, minibatch_size=500, mc=0.9,
+                   regularization=1.0, std_w1_init=0.0006, std_w2_init=0.0006)
 
     # -- test -- #
     # calculate error rate of test data
