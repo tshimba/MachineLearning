@@ -91,9 +91,11 @@ class NeuralNetworkClassifier(object):
         np.random.seed(0)
         self.w_1 = std_w1_init * np.random.randn(self.M,
                                                  d_feature).astype(np.float32)
+        self.w_1[:, 0] = 0
         # 1 for bias at hidden layer
         self.w_2 = std_w2_init * np.random.randn(n_classes,
                                                  self.M+1).astype(np.float32)
+        self.w_2[:, 0] = 0
 
         self.v_1 = 0
         self.v_2 = 0
