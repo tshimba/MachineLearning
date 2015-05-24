@@ -50,6 +50,7 @@ def load_mnist():
     n_train = 60000      # The number of training set
 
     # Split test dataset into training dataset (60000) and test dataset (10000)
+    mnist.data = mnist.data / 256.
     data_train = mnist.data[:n_train]
     target_train = mnist.target[:n_train]
     data_test = mnist.data[n_train:]
