@@ -268,8 +268,8 @@ if __name__ == "__main__":
     classifier = NeuralNetworkClassifier(M=600)
     classifier.fit(data_train, label_train, data_valid, label_valid,
                    lr=0.0003, num_iteration=600, minibatch_size=500,
-                   mc=0.1, regularization=0.1, std_w1_init=0.0001,
-                   std_w2_init=0.0001)
+                   mc=0.9, regularization=0.1, std_w1_init=0.03,
+                   std_w2_init=0.04)
 
     # -- test -- #
     # calculate error rate of test data
