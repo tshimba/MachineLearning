@@ -11,6 +11,7 @@ from sklearn import datasets
 from sklearn import cross_validation
 from sklearn.metrics import confusion_matrix
 from scipy.misc import logsumexp
+import time
 
 
 def softmax(a):
@@ -31,7 +32,7 @@ def label_to_onehot(labels):
     '''
     n_examples = len(labels)
     n_classes = len(np.unique(labels))
-    onehot = np.zeros((n_examples, n_classes))
+    onehot = np.zeros((n_examples, n_classes), dtype=np.float32)
     for i, label in enumerate(labels):
         onehot[i].put(label, 1)
     return onehot
@@ -49,11 +50,13 @@ def load_mnist():
     n_train = 60000      # The number of training set
 
     # Split test dataset into training dataset (60000) and test dataset (10000)
+    mnist.data = mnist.data / 256.
     data_train = mnist.data[:n_train]
     target_train = mnist.target[:n_train]
     data_test = mnist.data[n_train:]
     target_test = mnist.target[n_train:]
-    return data_train, target_train, data_test, target_test
+    return data_train.astype(np.float32), target_train.astype(np.float32), \
+        data_test.astype(np.float32), target_test.astype(np.float32)
 
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -73,10 +76,12 @@ class NeuralNetworkClassifier(object):
         self.M = M
         self.w_1 = None
         self.w_2 = None
+        self.v_1 = None
+        self.v_2 = None
 
-    def fit(self, data_train, label_train, data_valid, label_valid, lr=0.001,
-            num_iteration=20, minibatch_size=500, std_w1_init=0.5,
-            std_w2_init=0.2):
+    def fit(self, data_train, label_train, data_valid, label_valid,
+            lr=0.001, num_iteration=20, minibatch_size=500, mc=0.0,
+            regularization=0.0, std_w1_init=0.5, std_w2_init=0.2):
 
         n_classes = len(np.unique(label_train))
         n_train = len(data_train)              # number of training dataset
@@ -85,9 +90,16 @@ class NeuralNetworkClassifier(object):
         # initialize weight vector
         # each w is vertical vector
         np.random.seed(0)
-        self.w_1 = std_w1_init * np.random.randn(self.M, d_feature)
+        self.w_1 = std_w1_init * np.random.randn(self.M,
+                                                 d_feature).astype(np.float32)
+        self.w_1[:, 0] = 0
         # 1 for bias at hidden layer
-        self.w_2 = std_w2_init * np.random.randn(n_classes, self.M+1)
+        self.w_2 = std_w2_init * np.random.randn(n_classes,
+                                                 self.M+1).astype(np.float32)
+        self.w_2[:, 0] = 0
+
+        self.v_1 = 0
+        self.v_2 = 0
 
         scores_train = []
         scores_valid = []
@@ -103,12 +115,13 @@ class NeuralNetworkClassifier(object):
         # add one dimention to future vector for bias
         n_train = len(data_train)                  # number of all data
 
-        ones = np.ones((n_train, 1))
-        X_train = np.hstack((ones, data_train))
+        ones = np.ones((n_train, 1), dtype=np.float32)
+        X_train = np.hstack((ones, data_train)).astype(np.float32)
 
         try:
             # 'r' means iteration. The name 'r' come from PRML.
             for r in range(num_iteration):
+                measure_start = time.clock()
                 print "iteration %3d" % (r+1)
 
                 # numbers of minibatch per 1 epoch
@@ -127,7 +140,7 @@ class NeuralNetworkClassifier(object):
                     # convert with activation function
                     z = np.tanh(a)
                     # add bias to z_pred_training
-                    ones = np.ones((minibatch_size, 1))
+                    ones = np.ones((minibatch_size, 1), dtype=np.float32)
                     z = np.hstack((ones, z))
 
                     # -- second layer -- #
@@ -142,11 +155,18 @@ class NeuralNetworkClassifier(object):
                                                            self.w_2[:, 1:])
                     # gradient at layer 1
                     gradient_1 = np.dot(X_batch.T, error_1).T
+                    # regularize except for bias
+                    gradient_1[1:] -= regularization * self.w_1[1:]
+
                     # gradient at layer 2
                     gradient_2 = np.dot(z.T, error_2).T
+                    # regularize except for bias
+                    gradient_2[1:] -= regularization * self.w_2[1:]
 
-                    self.w_1 -= lr * gradient_1
-                    self.w_2 -= lr * gradient_2
+                    self.v_1 = mc * self.v_1 - (1 - mc) * lr * gradient_1
+                    self.v_2 = mc * self.v_2 - (1 - mc) * lr * gradient_2
+                    self.w_1 += self.v_1
+                    self.w_2 += self.v_2
 
                 assert not np.any(np.isnan(self.w_1))
                 assert not np.any(np.isnan(self.w_1))
@@ -172,6 +192,10 @@ class NeuralNetworkClassifier(object):
                     w_2_best = self.w_2
                     score_valid_best = score_valid
                     r_best = r+1
+
+                measure_stop = time.clock()
+                print measure_stop - measure_start
+
                 print
 
         except KeyboardInterrupt:
@@ -182,8 +206,8 @@ class NeuralNetworkClassifier(object):
 
         # show correct rate of train and valid
         plt.figure()
-        plt.plot(np.arange(num_iteration), np.array(scores_train))
-        plt.plot(np.arange(num_iteration), np.array(scores_valid))
+        plt.plot(np.arange(len(scores_train)), np.array(scores_train))
+        plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
         plt.legend(['train', 'valid'])
         plt.show()
 
@@ -197,13 +221,13 @@ class NeuralNetworkClassifier(object):
         '''
         # add one dimention to future vector for bias
         n = len(X)                  # number of all data
-        ones = np.ones((n, 1))
+        ones = np.ones((n, 1), dtype=np.float32)
         X = np.hstack((ones, X))
 
         a = np.dot(X, self.w_1.T)
         z = np.tanh(a)
         # add bias to z_pred_training
-        ones = np.ones((len(X), 1))
+        ones = np.ones((len(X), 1), dtype=np.float32)
         z = np.hstack((ones, z))
         y = softmax(np.dot(z, self.w_2.T))
         return y
@@ -244,10 +268,11 @@ if __name__ == "__main__":
 
     n_test = len(data_test)            # number of test dataset
 
-    classifier = NeuralNetworkClassifier(M=100)
-    classifier.fit(data_train, label_train, data_valid, label_valid, lr=0.001,
-                   num_iteration=5, minibatch_size=500, std_w1_init=0.5,
-                   std_w2_init=0.2)
+    classifier = NeuralNetworkClassifier(M=600)
+    classifier.fit(data_train, label_train, data_valid, label_valid,
+                   lr=0.0003, num_iteration=600, minibatch_size=500,
+                   mc=0.9, regularization=0.001, std_w1_init=0.03,
+                   std_w2_init=0.04)
 
     # -- test -- #
     # calculate error rate of test data
