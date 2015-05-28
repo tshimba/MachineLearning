@@ -234,7 +234,9 @@ if __name__ == "__main__":
     correct_y = np.sin(correct_x)
 
     plt.figure()
-    y = regressor.predict(data_valid)
+    y = regressor.predict(correct_x)
     plt.plot(x, t, 'cx')
-    plt.plot(data_valid, y, 'bo')
+    plt.plot(correct_x, y, 'bo')
     plt.plot(correct_x, correct_y, 'r')
+
+    print '[test] correct rate ', regressor.score(correct_x, correct_y)
