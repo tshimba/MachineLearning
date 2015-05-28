@@ -228,8 +228,12 @@ if __name__ == "__main__":
                   lr=0.0003, num_iteration=10, minibatch_size=60,
                   mc=0.9, regularization=0.001, std_w1_init=0.03,
                   std_w2_init=0.04)
+    # show sin, noisy sin, and predicted result
+    correct_x = np.linspace(-3, 3, 1000)
+    correct_y = np.sin(correct_x)
 
     plt.figure()
     y = regressor.predict(data_valid)
-    plt.plot(x, t, '.')
-    plt.plot(data_valid, y, '.')
+    plt.plot(x, t, 'cx')
+    plt.plot(data_valid, y, 'bo')
+    plt.plot(correct_x, correct_y, 'r')
