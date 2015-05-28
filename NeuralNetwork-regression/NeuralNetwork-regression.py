@@ -25,7 +25,7 @@ def label_to_onehot(labels):
 
 
 def generate_noisy_sin(num_examples=1000, noise_std=0.2):
-    x = np.random.uniform(-10, 10, num_examples)
+    x = np.random.uniform(-3, 3, num_examples)
     y_true = np.sin(x)
     y = y_true + noise_std * np.random.randn(num_examples)
     return x, y
