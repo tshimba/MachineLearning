@@ -31,7 +31,7 @@ def generate_noisy_sin(num_examples=1000, noise_std=0.2):
     return x, y
 
 
-class NeuralNetworkClassifier(object):
+class NeuralNetworkRegressor(object):
     def __init__(self, M=100):
         self.M = M
         self.w_1 = None
@@ -227,8 +227,8 @@ if __name__ == "__main__":
                                           train_size=n_train_rate,
                                           random_state=0)
 
-    classifier = NeuralNetworkClassifier(M=600)
-    classifier.fit(data_train, label_train, data_valid, label_valid,
-                   lr=0.0003, num_iteration=600, minibatch_size=500,
-                   mc=0.9, regularization=0.001, std_w1_init=0.03,
-                   std_w2_init=0.04)
+    regressor = NeuralNetworkRegressor(M=600)
+    regressor.fit(data_train, label_train, data_valid, label_valid,
+                  lr=0.0003, num_iteration=600, minibatch_size=500,
+                  mc=0.9, regularization=0.001, std_w1_init=0.03,
+                  std_w2_init=0.04)
