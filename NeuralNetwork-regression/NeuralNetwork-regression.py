@@ -38,14 +38,15 @@ class NeuralNetworkRegressor(object):
         self.w_2 = None
         self.v_1 = None
         self.v_2 = None
+        self.n_dimension = 1
 
     def fit(self, data_train, label_train, data_valid, label_valid,
             lr=0.001, num_iteration=20, minibatch_size=500, mc=0.0,
             regularization=0.0, std_w1_init=0.5, std_w2_init=0.2):
 
-        n_classes = len(np.unique(label_train))
+        n_classes = self.n_dimension
         n_train = len(data_train)              # number of training dataset
-        d_feature = len(data_train[-1]) + 1    # dimention of feature vector
+        d_feature = self.n_dimension + 1    # dimention of feature vector
 
         # initialize weight vector
         # each w is vertical vector
@@ -67,16 +68,20 @@ class NeuralNetworkRegressor(object):
         # initialize correct rate of validation.
         # It is to store best scored w
         score_valid_best = 0
+        r_best = 0
+        w_1_best = 0
+        w_2_best = 0
 
-        # t convert to 1 hot
-        t_train = label_to_onehot(label_train)
+        # t convert to the shape
+        t_train = label_train.reshape(-1, self.n_dimension)
 
         # X: feature vectors
         # add one dimention to future vector for bias
         n_train = len(data_train)                  # number of all data
 
         ones = np.ones((n_train, 1), dtype=np.float32)
-        X_train = np.hstack((ones, data_train)).astype(np.float32)
+        X_train = np.hstack((ones, data_train.reshape(
+            -1, self.n_dimension))).astype(np.float32)
 
         try:
             # 'r' means iteration. The name 'r' come from PRML.
@@ -174,7 +179,7 @@ class NeuralNetworkRegressor(object):
         self.w_1 = w_1_best
         self.w_2 = w_2_best
 
-    def predict_proba(self, X):
+    def predict(self, X):
         '''
         input ... X: feature vectors without bias
         outpu ... predicted label probabilities
@@ -182,7 +187,7 @@ class NeuralNetworkRegressor(object):
         # add one dimention to future vector for bias
         n = len(X)                  # number of all data
         ones = np.ones((n, 1), dtype=np.float32)
-        X = np.hstack((ones, X))
+        X = np.hstack((ones, X.reshape(-1, self.n_dimension)))
 
         a = np.dot(X, self.w_1.T)
         z = np.tanh(a)
@@ -190,24 +195,16 @@ class NeuralNetworkRegressor(object):
         ones = np.ones((len(X), 1), dtype=np.float32)
         z = np.hstack((ones, z))
         y = np.dot(z, self.w_2.T)
-        return y
+        return y.reshape(-1)
 
-    def predict(self, X):
-        '''
-        input ... X: feature vectors without bias
-        output ... predicted labels
-        '''
-        y = self.predict_proba(X)
-        labels = np.argmax(y, axis=1)
-        return labels
-
+    # TODO: fix this function
     def score(self, X, t):
         '''
         input ... X: feature vectors without corresponding point of bias
                   t: target labels
         output ... correct rate
         '''
-        labels = self.predict(X)
+        labels = self.predict(X.reshape(-1, self.n_dimension))
         count_correct = np.sum(labels == t)
         return count_correct / float(len(X))
 
@@ -227,8 +224,8 @@ if __name__ == "__main__":
                                           train_size=n_train_rate,
                                           random_state=0)
 
-    regressor = NeuralNetworkRegressor(M=600)
+    regressor = NeuralNetworkRegressor(M=60)
     regressor.fit(data_train, label_train, data_valid, label_valid,
-                  lr=0.0003, num_iteration=600, minibatch_size=500,
+                  lr=0.0003, num_iteration=10, minibatch_size=60,
                   mc=0.9, regularization=0.001, std_w1_init=0.03,
                   std_w2_init=0.04)
