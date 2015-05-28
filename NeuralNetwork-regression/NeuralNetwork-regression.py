@@ -67,7 +67,7 @@ class NeuralNetworkRegressor(object):
 
         # initialize correct rate of validation.
         # It is to store best scored w
-        score_valid_best = 0
+        score_valid_best = 1
         r_best = 0
         w_1_best = 0
         w_2_best = 0
@@ -152,7 +152,7 @@ class NeuralNetworkRegressor(object):
                 print "[valid] %5.4f" % score_valid
                 scores_valid.append(score_valid)
 
-                if score_valid > score_valid_best:
+                if score_valid < score_valid_best:
                     w_1_best = self.w_1
                     w_2_best = self.w_2
                     score_valid_best = score_valid
