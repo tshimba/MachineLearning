@@ -38,25 +38,11 @@ def label_to_onehot(labels):
     return onehot
 
 
-def load_mnist():
-    '''
-    Load the digits dataset
-    fetch_mldata ... dataname is on mldata.org, data_home
-    load 10 classes, from 0 to 9
-    '''
-    print 'loading mnist dataset'
-    mnist = datasets.fetch_mldata('MNIST original')
-    print 'load done'
-    n_train = 60000      # The number of training set
-
-    # Split test dataset into training dataset (60000) and test dataset (10000)
-    mnist.data = mnist.data / 256.
-    data_train = mnist.data[:n_train]
-    target_train = mnist.target[:n_train]
-    data_test = mnist.data[n_train:]
-    target_test = mnist.target[n_train:]
-    return data_train.astype(np.float32), target_train.astype(np.float32), \
-        data_test.astype(np.float32), target_test.astype(np.float32)
+def generate_noisy_sin(num_examples=1000, noise_std=0.2):
+    x = np.random.uniform(-10, 10, num_examples)
+    y_true = np.sin(x)
+    y = y_true + noise_std * np.random.randn(num_examples)
+    return x, y
 
 
 def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
@@ -257,40 +243,18 @@ if __name__ == "__main__":
     # cross validation parameter, ratio of training and validation data
     n_train_rate = 0.9
 
-    # load mnist data. data and target labels
-    data_train, target_train, data_test, target_test = load_mnist()
+    # load noisy sin data.
+    x, t = generate_noisy_sin()
+    plt.plot(x, t, '.')
 
     # cross validation
     data_train, data_valid, label_train, label_valid = \
-        cross_validation.train_test_split(data_train, target_train,
+        cross_validation.train_test_split(x, t,
                                           train_size=n_train_rate,
                                           random_state=0)
-
-    n_test = len(data_test)            # number of test dataset
 
     classifier = NeuralNetworkClassifier(M=600)
     classifier.fit(data_train, label_train, data_valid, label_valid,
                    lr=0.0003, num_iteration=600, minibatch_size=500,
                    mc=0.9, regularization=0.001, std_w1_init=0.03,
                    std_w2_init=0.04)
-
-    # -- test -- #
-    # calculate error rate of test data
-    score = classifier.score(data_test, target_test)
-
-    # -- plot confusion matrix start -- #
-    mnist_labels = np.arange(10)
-    n_classes = len(mnist_labels)
-
-    labels = classifier.predict(data_test)
-
-    # Compute confusion matrix
-    cm = confusion_matrix(target_test, labels)
-    np.set_printoptions(precision=2)
-    print 'Confusion matrix, without normalization'
-    print cm
-    plt.figure()
-    plot_confusion_matrix(cm)
-    # -- plot confusion matrix end -- #
-
-    print "[test] correct rate ", score
