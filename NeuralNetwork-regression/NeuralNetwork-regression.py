@@ -196,17 +196,18 @@ class NeuralNetworkRegressor(object):
         y = np.dot(z, self.w_2.T)
         return y.reshape(-1)
 
-    # TODO: fix this function
     def score(self, X, t):
         '''
         input ... X: feature vectors without corresponding point of bias
                   t: target labels
         output ... correct rate
         '''
-        labels = self.predict(X.reshape(-1, self.n_dimension))
-        count_correct = np.sum(labels == t)
-        return count_correct / float(len(X))
+        y = self.predict(X.reshape(-1, self.n_dimension))
 
+        numerator = ((t - y) ** 2).sum()
+        denominator = ((t - np.average(t)) ** 2).sum()
+
+        return 1 - numerator / denominator
 
 if __name__ == "__main__":
 
