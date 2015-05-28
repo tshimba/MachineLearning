@@ -207,7 +207,7 @@ class NeuralNetworkRegressor(object):
         numerator = ((t - y) ** 2).sum()
         denominator = ((t - np.average(t)) ** 2).sum()
 
-        return 1 - numerator / denominator
+        return numerator / denominator
 
 if __name__ == "__main__":
 
