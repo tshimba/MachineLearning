@@ -223,11 +223,12 @@ if __name__ == "__main__":
                                           train_size=n_train_rate,
                                           random_state=0)
 
-    regressor = NeuralNetworkRegressor(M=60)
+    regressor = NeuralNetworkRegressor(M=5)
     regressor.fit(data_train, label_train, data_valid, label_valid,
-                  lr=0.0003, num_iteration=10, minibatch_size=60,
-                  mc=0.9, regularization=0.001, std_w1_init=0.03,
-                  std_w2_init=0.04)
+                  lr=0.000001, num_iteration=100, minibatch_size=60,
+                  mc=0.0, regularization=0.0, std_w1_init=0.4,
+                  std_w2_init=3.0)
+
     # show sin, noisy sin, and predicted result
     correct_x = np.linspace(-3, 3, 1000)
     correct_y = np.sin(correct_x)
