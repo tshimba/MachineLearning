@@ -157,6 +157,8 @@ class NeuralNetworkRegressor(object):
                     w_2_best = self.w_2
                     score_valid_best = score_valid
                     r_best = r+1
+                    self.w_1 = w_1_best
+                    self.w_2 = w_2_best
 
                 measure_stop = time.clock()
                 print measure_stop - measure_start
@@ -175,9 +177,6 @@ class NeuralNetworkRegressor(object):
         plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
         plt.legend(['train', 'valid'])
         plt.show()
-
-        self.w_1 = w_1_best
-        self.w_2 = w_2_best
 
     def predict(self, X):
         '''
@@ -216,7 +215,6 @@ if __name__ == "__main__":
 
     # load noisy sin data.
     x, t = generate_noisy_sin()
-    plt.plot(x, t, '.')
 
     # cross validation
     data_train, data_valid, label_train, label_valid = \
@@ -229,3 +227,8 @@ if __name__ == "__main__":
                   lr=0.0003, num_iteration=10, minibatch_size=60,
                   mc=0.9, regularization=0.001, std_w1_init=0.03,
                   std_w2_init=0.04)
+
+    plt.figure()
+    y = regressor.predict(data_valid)
+    plt.plot(x, t, '.')
+    plt.plot(data_valid, y, '.')
