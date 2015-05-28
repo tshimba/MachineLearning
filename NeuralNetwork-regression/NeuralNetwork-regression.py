@@ -7,22 +7,8 @@ Created on Wed May 27 17:40:24 2015
 
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn import datasets
 from sklearn import cross_validation
-from sklearn.metrics import confusion_matrix
-from scipy.misc import logsumexp
 import time
-
-
-def softmax(a):
-    '''
-    softmax function
-    Usage:
-    input a is np.dot(xi, w.T)
-    '''
-    a_T = a.T
-    b = logsumexp(a_T, axis=0)
-    return np.exp(a_T - b).T
 
 
 def label_to_onehot(labels):
@@ -43,18 +29,6 @@ def generate_noisy_sin(num_examples=1000, noise_std=0.2):
     y_true = np.sin(x)
     y = y_true + noise_std * np.random.randn(num_examples)
     return x, y
-
-
-def plot_confusion_matrix(cm, title='Confusion matrix', cmap=plt.cm.Blues):
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(n_classes)
-    plt.xticks(tick_marks, mnist_labels, rotation=45)
-    plt.yticks(tick_marks, mnist_labels)
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
 
 
 class NeuralNetworkClassifier(object):
@@ -131,7 +105,7 @@ class NeuralNetworkClassifier(object):
 
                     # -- second layer -- #
                     # calculate labels
-                    y = softmax(np.dot(z, self.w_2.T))
+                    y = np.dot(z, self.w_2.T)
 
                     # - backward pass - #
                     # error at layer 2
@@ -215,7 +189,7 @@ class NeuralNetworkClassifier(object):
         # add bias to z_pred_training
         ones = np.ones((len(X), 1), dtype=np.float32)
         z = np.hstack((ones, z))
-        y = softmax(np.dot(z, self.w_2.T))
+        y = np.dot(z, self.w_2.T)
         return y
 
     def predict(self, X):
