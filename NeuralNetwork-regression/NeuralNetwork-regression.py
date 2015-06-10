@@ -235,9 +235,9 @@ if __name__ == "__main__":
 
     regressor = NeuralNetworkRegressor(M=5, activation=ReLU)
     regressor.fit(data_train, label_train, data_valid, label_valid,
-                  lr=0.000001, num_iteration=100, minibatch_size=60,
-                  mc=0.0, regularization=0.0, std_w1_init=0.4,
-                  std_w2_init=3.0)
+                  lr=0.001, num_iteration=500, minibatch_size=60,
+                  mc=0.0, regularization=0.0, std_w1_init=0.5,
+                  std_w2_init=0.5)
 
     # show sin, noisy sin, and predicted result
     correct_x = np.linspace(-3, 3, 1000)
