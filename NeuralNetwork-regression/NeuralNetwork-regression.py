@@ -30,10 +30,16 @@ def generate_noisy_sin(num_examples=1000, noise_std=0.2):
     y = y_true + noise_std * np.random.randn(num_examples)
     return x, y
 
+def ReLU(a):
+    return np.maximum(0., a)
+
+def dReLU(z):
+    return np.asfarray(z > 0)
 
 class NeuralNetworkRegressor(object):
-    def __init__(self, M=100):
+    def __init__(self, M=100, activation=np.tanh):
         self.M = M
+        self.activation = activation
         self.w_1 = None
         self.w_2 = None
         self.v_1 = None
@@ -103,7 +109,7 @@ class NeuralNetworkRegressor(object):
                     # calculate activation
                     a = np.dot(X_batch, self.w_1.T)
                     # convert with activation function
-                    z = np.tanh(a)
+                    z = self.activation(a)
                     # add bias to z_pred_training
                     ones = np.ones((minibatch_size, 1), dtype=np.float32)
                     z = np.hstack((ones, z))
@@ -116,7 +122,11 @@ class NeuralNetworkRegressor(object):
                     # error at layer 2
                     error_2 = (y - t_batch)
                     # error at layer 1
-                    error_1 = (1 - z[:, 1:] ** 2) * np.dot(error_2,
+                    if self.activation is np.tanh:
+                        error_1 = (1 - z[:, 1:] ** 2) * np.dot(error_2,
+                                                           self.w_2[:, 1:])
+                    elif self.activation is ReLU:
+                        error_1 = dReLU(z[:, 1:]) * np.dot(error_2,
                                                            self.w_2[:, 1:])
                     # gradient at layer 1
                     gradient_1 = np.dot(X_batch.T, error_1).T
@@ -189,7 +199,7 @@ class NeuralNetworkRegressor(object):
         X = np.hstack((ones, X.reshape(-1, self.n_dimension)))
 
         a = np.dot(X, self.w_1.T)
-        z = np.tanh(a)
+        z = self.activation(a)
         # add bias to z_pred_training
         ones = np.ones((len(X), 1), dtype=np.float32)
         z = np.hstack((ones, z))
@@ -223,7 +233,7 @@ if __name__ == "__main__":
                                           train_size=n_train_rate,
                                           random_state=0)
 
-    regressor = NeuralNetworkRegressor(M=5)
+    regressor = NeuralNetworkRegressor(M=5, activation=ReLU)
     regressor.fit(data_train, label_train, data_valid, label_valid,
                   lr=0.000001, num_iteration=100, minibatch_size=60,
                   mc=0.0, regularization=0.0, std_w1_init=0.4,
