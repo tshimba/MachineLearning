@@ -218,6 +218,27 @@ class NeuralNetworkRegressor(object):
         denominator = ((t - np.average(t)) ** 2).sum()
 
         return numerator / denominator
+    
+    def show_z(self, X):
+        '''
+        input ... X: feature vectors without bias
+        outpu ... predicted label probabilities
+        '''
+        # add one dimention to future vector for bias
+        n = len(X)                  # number of all data
+        ones = np.ones((n, 1), dtype=np.float32)
+        X = np.hstack((ones, X.reshape(-1, self.n_dimension)))
+
+        a = np.dot(X, self.w_1.T)
+        z = self.activation(a)
+
+        plt.figure()
+        x = np.linspace(-3, 3, 1000)
+        plt.plot(x, z)
+        
+        plt.figure()
+        plt.plot(x, np.sum(z, axis=1))
+        
 
 if __name__ == "__main__":
 
@@ -248,5 +269,7 @@ if __name__ == "__main__":
     plt.plot(x, t, 'cx')
     plt.plot(correct_x, y, 'bo')
     plt.plot(correct_x, correct_y, 'r')
+    
+    regressor.show_z(correct_x)
 
     print '[test] correct rate ', regressor.score(correct_x, correct_y)
