@@ -30,11 +30,14 @@ def generate_noisy_sin(num_examples=1000, noise_std=0.2):
     y = y_true + noise_std * np.random.randn(num_examples)
     return x, y
 
+
 def ReLU(a):
     return np.maximum(0., a)
 
+
 def dReLU(z):
     return np.asfarray(z > 0)
+
 
 class NeuralNetworkRegressor(object):
     def __init__(self, M=100, activation=np.tanh):
@@ -122,7 +125,7 @@ class NeuralNetworkRegressor(object):
                     # error at layer 1
                     if self.activation is np.tanh:
                         error_1 = (1 - z[:, 1:] ** 2) * np.dot(error_2,
-                                                           self.w_2[:, 1:])
+                                                               self.w_2[:, 1:])
                     elif self.activation is ReLU:
                         error_1 = dReLU(z[:, 1:]) * np.dot(error_2,
                                                            self.w_2[:, 1:])
@@ -214,9 +217,8 @@ class NeuralNetworkRegressor(object):
 
         numerator = ((t - y) ** 2).sum()
         denominator = ((t - np.average(t)) ** 2).sum()
-
         return numerator / denominator
-    
+
     def show_z(self, X):
         '''
         input ... X: feature vectors without bias
@@ -271,7 +273,7 @@ if __name__ == "__main__":
     plt.plot(x, t, 'cx')
     plt.plot(correct_x, y, 'bo')
     plt.plot(correct_x, correct_y, 'r')
-    
+
     regressor.show_z(correct_x)
 
     print '[test] correct rate ', regressor.score(correct_x, correct_y)
