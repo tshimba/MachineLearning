@@ -235,10 +235,14 @@ class NeuralNetworkRegressor(object):
         plt.figure()
         x = np.linspace(-3, 3, 1000)
         plt.plot(x, z)
-        
+
+        ones = np.ones((len(X), 1), dtype=np.float32)
+        z = np.hstack((ones, z))
+        y = np.dot(z, self.w_2.T)
+
         plt.figure()
-        plt.plot(x, np.sum(z, axis=1))
-        
+        plt.plot(x, y)
+
 
 if __name__ == "__main__":
 
