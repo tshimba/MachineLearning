@@ -59,11 +59,9 @@ class NeuralNetworkRegressor(object):
         np.random.seed(0)
         self.w_1 = std_w1_init * np.random.randn(self.M,
                                                  d_feature).astype(np.float32)
-        self.w_1[:, 0] = 0
         # 1 for bias at hidden layer
         self.w_2 = std_w2_init * np.random.randn(n_classes,
                                                  self.M+1).astype(np.float32)
-        self.w_2[:, 0] = 0
 
         self.v_1 = 0
         self.v_2 = 0
@@ -245,7 +243,7 @@ class NeuralNetworkRegressor(object):
 
 
 if __name__ == "__main__":
-
+    np.random.seed(0)
     # cross validation parameter, ratio of training and validation data
     n_train_rate = 0.9
 
@@ -258,11 +256,11 @@ if __name__ == "__main__":
                                           train_size=n_train_rate,
                                           random_state=0)
 
-    regressor = NeuralNetworkRegressor(M=10, activation=ReLU)
+    regressor = NeuralNetworkRegressor(M=50, activation=ReLU)
     regressor.fit(data_train, label_train, data_valid, label_valid,
-                  lr=0.001, num_iteration=500, minibatch_size=60,
-                  mc=0.0, regularization=0.0, std_w1_init=0.5,
-                  std_w2_init=0.5)
+                  lr=0.00001, num_iteration=3000, minibatch_size=500,
+                  mc=0.0, regularization=0.0, std_w1_init=2,
+                  std_w2_init=0.1)
 
     # show sin, noisy sin, and predicted result
     correct_x = np.linspace(-6, 6, 5000)
