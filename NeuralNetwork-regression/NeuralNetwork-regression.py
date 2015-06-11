@@ -234,7 +234,7 @@ class NeuralNetworkRegressor(object):
 
         plt.figure()
         x = np.linspace(-3, 3, 1000)
-        plt.plot(x, z)
+        plt.plot(x, self.w_2[:,1:] * z)
 
         ones = np.ones((len(X), 1), dtype=np.float32)
         z = np.hstack((ones, z))
@@ -258,7 +258,7 @@ if __name__ == "__main__":
                                           train_size=n_train_rate,
                                           random_state=0)
 
-    regressor = NeuralNetworkRegressor(M=5, activation=ReLU)
+    regressor = NeuralNetworkRegressor(M=10, activation=ReLU)
     regressor.fit(data_train, label_train, data_valid, label_valid,
                   lr=0.001, num_iteration=500, minibatch_size=60,
                   mc=0.0, regularization=0.0, std_w1_init=0.5,
