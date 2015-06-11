@@ -25,7 +25,7 @@ def label_to_onehot(labels):
 
 
 def generate_noisy_sin(num_examples=1000, noise_std=0.2):
-    x = np.random.uniform(-3, 3, num_examples)
+    x = np.random.uniform(-6, 6, num_examples)
     y_true = np.sin(x)
     y = y_true + noise_std * np.random.randn(num_examples)
     return x, y
@@ -233,8 +233,8 @@ class NeuralNetworkRegressor(object):
         z = self.activation(a)
 
         plt.figure()
-        x = np.linspace(-3, 3, 1000)
-        plt.plot(x, self.w_2[:,1:] * z)
+        x = np.linspace(-6, 6, 5000)
+        plt.plot(x, self.w_2[:, 1:] * z)
 
         ones = np.ones((len(X), 1), dtype=np.float32)
         z = np.hstack((ones, z))
@@ -250,7 +250,7 @@ if __name__ == "__main__":
     n_train_rate = 0.9
 
     # load noisy sin data.
-    x, t = generate_noisy_sin()
+    x, t = generate_noisy_sin(5000)
 
     # cross validation
     data_train, data_valid, label_train, label_valid = \
@@ -265,7 +265,7 @@ if __name__ == "__main__":
                   std_w2_init=0.5)
 
     # show sin, noisy sin, and predicted result
-    correct_x = np.linspace(-3, 3, 1000)
+    correct_x = np.linspace(-6, 6, 5000)
     correct_y = np.sin(correct_x)
 
     plt.figure()
