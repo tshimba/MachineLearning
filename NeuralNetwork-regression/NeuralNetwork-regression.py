@@ -11,19 +11,6 @@ from sklearn import cross_validation
 import time
 
 
-def label_to_onehot(labels):
-    '''
-    t: correct labels
-    labels to 1 of K
-    '''
-    n_examples = len(labels)
-    n_classes = len(np.unique(labels))
-    onehot = np.zeros((n_examples, n_classes), dtype=np.float32)
-    for i, label in enumerate(labels):
-        onehot[i].put(label, 1)
-    return onehot
-
-
 def generate_noisy_sin(num_examples=1000, noise_std=0.2):
     x = np.random.uniform(-6, 6, num_examples)
     y_true = np.sin(x)
@@ -36,6 +23,9 @@ def ReLU(a):
 
 
 def dReLU(z):
+    '''
+    return the differential of ReLU.
+    '''
     return np.asfarray(z > 0)
 
 
@@ -58,7 +48,6 @@ class NeuralNetworkRegressor(object):
         d_feature = self.n_dimension + 1    # dimention of feature vector
 
         # initialize weight vector
-        # each w is vertical vector
         np.random.seed(0)
         self.w_1 = std_w1_init * np.random.randn(self.M,
                                                  d_feature).astype(np.float32)
@@ -91,12 +80,12 @@ class NeuralNetworkRegressor(object):
             -1, self.n_dimension))).astype(np.float32)
 
         try:
-            # 'r' means iteration. The name 'r' come from PRML.
+            # 'r' means iteration. The name 'r' is derived from PRML.
             for r in range(num_iteration):
                 measure_start = time.clock()
                 print "iteration %3d" % (r+1)
 
-                # numbers of minibatch per 1 epoch
+                # numbers of minibatch
                 num_batches = n_train / minibatch_size
                 # shuffle the list of indices
                 perm = np.random.permutation(n_train)
@@ -111,12 +100,12 @@ class NeuralNetworkRegressor(object):
                     a = np.dot(X_batch, self.w_1.T)
                     # convert with activation function
                     z = self.activation(a)
-                    # add bias to z_pred_training
+                    # add bias to z
                     ones = np.ones((minibatch_size, 1), dtype=np.float32)
                     z = np.hstack((ones, z))
 
                     # -- second layer -- #
-                    # calculate labels
+                    # predict y
                     y = np.dot(z, self.w_2.T)
 
                     # - backward pass - #
@@ -180,10 +169,10 @@ class NeuralNetworkRegressor(object):
         except KeyboardInterrupt:
             pass
 
-        print "Best model: r = %d, correct rate = %f" % (
+        print "Best model: r = %d, error rate = %f" % (
             r_best, score_valid_best)
 
-        # show correct rate of train and valid
+        # show error rate of train and valid
         plt.figure()
         plt.plot(np.arange(len(scores_train)), np.array(scores_train))
         plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
@@ -192,27 +181,27 @@ class NeuralNetworkRegressor(object):
 
     def predict(self, X):
         '''
-        input ... X: feature vectors without bias
-        outpu ... predicted label probabilities
+        input ... X: horizontal axis
+        output ... predicted vertical axis value
         '''
-        # add one dimention to future vector for bias
-        n = len(X)                  # number of all data
-        ones = np.ones((n, 1), dtype=np.float32)
+        # add one dimention to feature vector for bias
+        N = len(X)                  # number of all data
+        ones = np.ones((N, 1), dtype=np.float32)
         X = np.hstack((ones, X.reshape(-1, self.n_dimension)))
 
         a = np.dot(X, self.w_1.T)
         z = self.activation(a)
-        # add bias to z_pred_training
-        ones = np.ones((len(X), 1), dtype=np.float32)
+        # add bias to z
+        ones = np.ones((N, 1), dtype=np.float32)
         z = np.hstack((ones, z))
         y = np.dot(z, self.w_2.T)
         return y.reshape(-1)
 
     def score(self, X, t):
         '''
-        input ... X: feature vectors without corresponding point of bias
-                  t: target labels
-        output ... correct rate
+        input ... X: horizontal axis
+                  t: vertical axis
+        output ... root mean squared error
         '''
         N = len(X)
         y = self.predict(X.reshape(-1, self.n_dimension))
@@ -222,12 +211,12 @@ class NeuralNetworkRegressor(object):
 
     def show_z(self, X):
         '''
-        input ... X: feature vectors without bias
-        outpu ... predicted label probabilities
+        This function show graphs, hidden layer's units and the result.
+        input ... X: arbitrary range of the horizontal axis
         '''
-        # add one dimention to future vector for bias
-        n = len(X)                  # number of all data
-        ones = np.ones((n, 1), dtype=np.float32)
+        # add one dimention to feature vector for bias
+        N = len(X)                  # number of all data
+        ones = np.ones((N, 1), dtype=np.float32)
         X = np.hstack((ones, X.reshape(-1, self.n_dimension)))
 
         a = np.dot(X, self.w_1.T)
@@ -237,7 +226,7 @@ class NeuralNetworkRegressor(object):
         x = np.linspace(-6, 6, 5000)
         plt.plot(x, self.w_2[:, 1:] * z)
 
-        ones = np.ones((len(X), 1), dtype=np.float32)
+        ones = np.ones((N, 1), dtype=np.float32)
         z = np.hstack((ones, z))
         y = np.dot(z, self.w_2.T)
 
@@ -247,34 +236,34 @@ class NeuralNetworkRegressor(object):
 
 if __name__ == "__main__":
     np.random.seed(0)
-    # cross validation parameter, ratio of training and validation data
+    # holdout validation parameter, ratio of training and validation data
     n_train_rate = 0.9
 
     # load noisy sin data.
-    x, t = generate_noisy_sin(5000)
+    X, t = generate_noisy_sin(5000)
 
-    # cross validation
-    data_train, data_valid, label_train, label_valid = \
-        cross_validation.train_test_split(x, t,
+    # holdout validation
+    X_train, X_valid, t_train, t_valid = \
+        cross_validation.train_test_split(X, t,
                                           train_size=n_train_rate,
                                           random_state=0)
 
     regressor = NeuralNetworkRegressor(M=50, activation=ReLU)
-    regressor.fit(data_train, label_train, data_valid, label_valid,
-                  lr=0.00001, num_iteration=3000, minibatch_size=500,
+    regressor.fit(X_train, t_train, X_valid, t_valid,
+                  lr=0.00001, num_iteration=300, minibatch_size=500,
                   mc=0.0, regularization=0.0, std_w1_init=2,
                   std_w2_init=0.1)
 
     # show sin, noisy sin, and predicted result
-    correct_x = np.linspace(-6, 6, 5000)
-    correct_y = np.sin(correct_x)
+    test_x = np.linspace(-6, 6, 5000)
+    test_y = np.sin(test_x)
 
     plt.figure()
-    y = regressor.predict(correct_x)
-    plt.plot(x, t, 'cx')
-    plt.plot(correct_x, y, 'bo')
-    plt.plot(correct_x, correct_y, 'r')
+    predicted_y = regressor.predict(test_x)
+    plt.plot(X, t, 'cx')
+    plt.plot(test_x, predicted_y, 'bo')
+    plt.plot(test_x, test_y, 'r')
 
-    regressor.show_z(correct_x)
+    regressor.show_z(test_x)
 
-    print '[test] correct rate ', regressor.score(correct_x, correct_y)
+    print '[test] error rate ', regressor.score(test_x, test_y)
