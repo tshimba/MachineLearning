@@ -168,13 +168,14 @@ class NeuralNetworkRegressor(object):
                     w_2_best = self.w_2
                     score_valid_best = score_valid
                     r_best = r+1
-                    self.w_1 = w_1_best
-                    self.w_2 = w_2_best
 
                 measure_stop = time.clock()
                 print measure_stop - measure_start
 
                 print
+
+            self.w_1 = w_1_best
+            self.w_2 = w_2_best
 
         except KeyboardInterrupt:
             pass
