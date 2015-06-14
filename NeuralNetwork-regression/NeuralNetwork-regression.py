@@ -213,11 +213,11 @@ class NeuralNetworkRegressor(object):
                   t: target labels
         output ... correct rate
         '''
+        N = len(X)
         y = self.predict(X.reshape(-1, self.n_dimension))
 
         numerator = ((t - y) ** 2).sum()
-        denominator = ((t - np.average(t)) ** 2).sum()
-        return numerator / denominator
+        return np.sqrt(numerator / N)
 
     def show_z(self, X):
         '''
