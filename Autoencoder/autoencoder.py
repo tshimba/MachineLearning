@@ -14,13 +14,13 @@ import chainer.functions as F
 import draw_filters
 
 batchsize = 20
-n_epoch = 15
+n_epoch = 100
 n_units = 100
 D = 784
 
-lr = 0.001
-std_w1_init = 0.05
-std_w2_init = 0.03
+lr = 0.01
+std_w1_init = 1.0
+std_w2_init = 0.2
 
 N_train_rate = 0.9
 
