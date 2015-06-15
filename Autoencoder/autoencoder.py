@@ -35,11 +35,9 @@ y_train, y_test = np.split(target, [N])
 N_test = y_test.size
 
 # Prepare multi-layer perceptron model
-model = FunctionSet(l1=F.Linear(D, n_units),
-                    l2=F.Linear(n_units, D))
+model = FunctionSet(l1=F.Linear(D, n_units, wscale=std_w1_init),
+                    l2=F.Linear(n_units, D, wscale=std_w2_init))
 
-model.l1.W = std_w1_init * np.random.randn(n_units, D).astype(np.float32)
-model.l2.W = std_w2_init * np.random.randn(D, n_units).astype(np.float32)
 
 
 # Neural net architecture
