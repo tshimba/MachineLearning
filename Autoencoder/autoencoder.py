@@ -72,10 +72,11 @@ for epoch in xrange(1, n_epoch+1):
 
     print 'train mean loss={}'.format(sum_loss / N)
 
+    draw_filters.draw_filters(model.l1.W)
+    plt.draw()
+
 y = predict(x_test)
 for i in range(10):
     index = (labels_test == i)
     plt.matshow(x_test[index][0].reshape(28, 28), cmap=plt.cm.gray)
     plt.matshow(y.data[index][0].reshape(28, 28), cmap=plt.cm.gray)
-
-draw_filters.draw_filters(model.l1.W)
