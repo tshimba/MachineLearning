@@ -58,15 +58,18 @@ def forward(x_data, y_data, train=True):
     return F.mean_squared_error(y, t)
 
 
-def predict(x_data, train=False):
-    x = Variable(x_data)
+def predict(x_data, y_data, train=False):
+    x, t = Variable(x_data), Variable(y_data)
     h = F.dropout(F.relu(model.l1(x)), train=train)
     y = model.l2(h)
-    return y
+    return y, F.mean_squared_error(y, t)
 
 # Setup optimizer
 optimizer = optimizers.Adam(alpha=lr)
 optimizer.setup(model.collect_parameters())
+
+scores_train = []
+scores_valid = []
 
 # Learning loop
 for epoch in xrange(1, n_epoch+1):
@@ -86,19 +89,39 @@ for epoch in xrange(1, n_epoch+1):
 
         sum_loss += float(loss.data) * batchsize
 
-    print 'train mean loss={}'.format(sum_loss / N)
-
     print "[w1l2] %5.4f" % np.linalg.norm(model.l1.W)
     print "[w2l2] %5.4f" % np.linalg.norm(model.l2.W)
 
     print "[g1l2] %5.4f" % np.linalg.norm(model.l1.gW)
     print "[g2l2] %5.4f" % np.linalg.norm(model.l2.gW)
 
+    y, score = predict(x_train, y_train)
+    print "[train]", score.data
+    scores_train.append(float(score.data))
+
+    y, score = predict(x_valid, y_valid)
+    print "[valid]", score.data
+    scores_valid.append(float(score.data))
+
+    # show error rate of train and valid
+    plt.figure()
+    plt.plot(np.arange(len(scores_train)), np.array(scores_train))
+    plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
+    plt.legend(['train', 'valid'])
+    plt.show()
+
     draw_filters.draw_filters(model.l1.W)
     plt.draw()
 
+# show error rate of train and valid
+plt.figure()
+plt.plot(np.arange(len(scores_train)), np.array(scores_train))
+plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
+plt.legend(['train', 'valid'])
+plt.show()
+
 result = np.empty(D)
-y = predict(x_test)
+y, score = predict(x_test, y_test)
 for i in range(10):
     index = (labels_test == i)
     for j in range(5):
