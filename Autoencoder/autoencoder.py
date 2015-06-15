@@ -89,8 +89,12 @@ for epoch in xrange(1, n_epoch+1):
     draw_filters.draw_filters(model.l1.W)
     plt.draw()
 
+result = np.empty(D)
 y = predict(x_test)
 for i in range(10):
     index = (labels_test == i)
-    plt.matshow(x_test[index][0].reshape(28, 28), cmap=plt.cm.gray)
-    plt.matshow(y.data[index][0].reshape(28, 28), cmap=plt.cm.gray)
+    for j in range(5):
+        result = np.vstack((result, x_test[index][j]))
+        result = np.vstack((result, y.data[index][j]))
+
+draw_filters.draw_filters(result[1:])
