@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_mldata
 from chainer import Variable, FunctionSet, optimizers
 import chainer.functions as F
+import draw_filters
 
 batchsize = 600
 n_epoch = 30
@@ -76,3 +77,5 @@ for i in range(10):
     index = (labels_test == i)
     plt.matshow(x_test[index][0].reshape(28, 28), cmap=plt.cm.gray)
     plt.matshow(y.data[index][0].reshape(28, 28), cmap=plt.cm.gray)
+
+draw_filters.draw_filters(model.l1.W)
