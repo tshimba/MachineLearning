@@ -80,6 +80,12 @@ for epoch in xrange(1, n_epoch+1):
 
     print 'train mean loss={}'.format(sum_loss / N)
 
+    print "[w1l2] %5.4f" % np.linalg.norm(model.l1.W)
+    print "[w2l2] %5.4f" % np.linalg.norm(model.l2.W)
+
+    print "[g1l2] %5.4f" % np.linalg.norm(model.l1.gW)
+    print "[g2l2] %5.4f" % np.linalg.norm(model.l2.gW)
+
     draw_filters.draw_filters(model.l1.W)
     plt.draw()
 
