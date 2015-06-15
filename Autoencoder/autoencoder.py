@@ -8,6 +8,7 @@ Created on Mon Jun 15 02:01:07 2015
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_mldata
+from sklearn import cross_validation
 from chainer import Variable, FunctionSet, optimizers
 import chainer.functions as F
 import draw_filters
@@ -20,6 +21,8 @@ D = 784
 lr = 0.001
 std_w1_init = 0.05
 std_w2_init = 0.03
+
+N_train_rate = 0.9
 
 # Prepare dataset
 print 'fetch MNIST dataset'
@@ -38,6 +41,13 @@ N_test = y_test.size
 model = FunctionSet(l1=F.Linear(D, n_units, wscale=std_w1_init),
                     l2=F.Linear(n_units, D, wscale=std_w2_init))
 
+# holdout validation
+x_train, x_valid, y_train, y_valid = \
+    cross_validation.train_test_split(x_train, y_train,
+                                      train_size=N_train_rate,
+                                      random_state=0)
+
+N_train = len(x_train)
 
 
 # Neural net architecture
@@ -63,9 +73,9 @@ for epoch in xrange(1, n_epoch+1):
     print 'epoch', epoch
 
     # training
-    perm = np.random.permutation(N)
+    perm = np.random.permutation(N_train)
     sum_loss = 0
-    for i in xrange(0, N, batchsize):
+    for i in xrange(0, N_train, batchsize):
         x_batch = x_train[perm[i:i+batchsize]]
         y_batch = y_train[perm[i:i+batchsize]]
 
