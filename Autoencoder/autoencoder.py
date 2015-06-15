@@ -12,8 +12,8 @@ from chainer import Variable, FunctionSet, optimizers
 import chainer.functions as F
 import draw_filters
 
-batchsize = 600
-n_epoch = 30
+batchsize = 20
+n_epoch = 15
 n_units = 100
 D = 784
 
