@@ -15,6 +15,11 @@ import draw_filters
 batchsize = 600
 n_epoch = 30
 n_units = 100
+D = 784
+
+lr = 0.001
+std_w1_init = 0.05
+std_w2_init = 0.03
 
 # Prepare dataset
 print 'fetch MNIST dataset'
@@ -30,8 +35,11 @@ y_train, y_test = np.split(target, [N])
 N_test = y_test.size
 
 # Prepare multi-layer perceptron model
-model = FunctionSet(l1=F.Linear(784, n_units),
-                    l2=F.Linear(n_units, 784))
+model = FunctionSet(l1=F.Linear(D, n_units),
+                    l2=F.Linear(n_units, D))
+
+model.l1.W = std_w1_init * np.random.randn(n_units, D).astype(np.float32)
+model.l2.W = std_w2_init * np.random.randn(D, n_units).astype(np.float32)
 
 
 # Neural net architecture
@@ -49,7 +57,7 @@ def predict(x_data, train=False):
     return y
 
 # Setup optimizer
-optimizer = optimizers.Adam()
+optimizer = optimizers.Adam(alpha=lr)
 optimizer.setup(model.collect_parameters())
 
 # Learning loop
