@@ -9,7 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.datasets import fetch_mldata
 from chainer import Variable, FunctionSet, optimizers
-import chainer.functions  as F
+import chainer.functions as F
 
 batchsize = 600
 n_epoch = 30
