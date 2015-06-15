@@ -30,24 +30,21 @@ N_test = y_test.size
 
 # Prepare multi-layer perceptron model
 model = FunctionSet(l1=F.Linear(784, n_units),
-                    l2=F.Linear(n_units, n_units),
-                    l3=F.Linear(n_units, 784))
+                    l2=F.Linear(n_units, 784))
 
 
 # Neural net architecture
 def forward(x_data, y_data, train=True):
     x, t = Variable(x_data), Variable(y_data)
-    h1 = F.dropout(F.relu(model.l1(x)), train=train)
-    h2 = F.dropout(F.relu(model.l2(h1)), train=train)
-    y = model.l3(h2)
+    h = F.dropout(F.relu(model.l1(x)), train=train)
+    y = model.l2(h)
     return F.mean_squared_error(y, t)
 
 
 def predict(x_data, train=False):
     x = Variable(x_data)
-    h1 = F.dropout(F.relu(model.l1(x)), train=train)
-    h2 = F.dropout(F.relu(model.l2(h1)), train=train)
-    y = model.l3(h2)
+    h = F.dropout(F.relu(model.l1(x)), train=train)
+    y = model.l2(h)
     return y
 
 # Setup optimizer
