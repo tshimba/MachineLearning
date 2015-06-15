@@ -20,7 +20,7 @@ print 'fetch MNIST dataset'
 mnist = fetch_mldata('MNIST original')
 mnist.data = mnist.data.astype(np.float32)
 data = mnist.data / 255
-target = mnist.data
+target = data
 labels_test = mnist.target[60000:]
 
 N = 60000
