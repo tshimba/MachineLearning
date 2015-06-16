@@ -83,7 +83,7 @@ for epoch in xrange(1, n_epoch+1):
         y_batch = y_train[perm[i:i+batchsize]]
 
         optimizer.zero_grads()
-        loss = forward(x_batch, y_batch)
+        loss = forward(x_batch, y_batch, train=False)
         loss.backward()
         optimizer.update()
 
