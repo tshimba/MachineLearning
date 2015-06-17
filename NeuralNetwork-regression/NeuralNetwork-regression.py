@@ -121,12 +121,12 @@ class NeuralNetworkRegressor(object):
                     # gradient at layer 1
                     gradient_1 = np.dot(X_batch.T, error_1).T
                     # regularize except for bias
-                    gradient_1[1:] -= regularization * self.w_1[1:]
+                    gradient_1[1:] += regularization * self.w_1[1:]
 
                     # gradient at layer 2
                     gradient_2 = np.dot(z.T, error_2).T
                     # regularize except for bias
-                    gradient_2[1:] -= regularization * self.w_2[1:]
+                    gradient_2[1:] += regularization * self.w_2[1:]
 
                     self.v_1 = mc * self.v_1 - (1 - mc) * lr * gradient_1
                     self.v_2 = mc * self.v_2 - (1 - mc) * lr * gradient_2
