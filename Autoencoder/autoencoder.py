@@ -24,6 +24,15 @@ std_w2_init = 0.2
 
 N_train_rate = 0.9
 
+
+def generate_noisy_data(data, noise_std=1.0):
+    n = len(data)
+    noisy_data = []
+    for i in range(n):
+        noisy_data.append(data[i] + noise_std * data[i].std() *
+                          np.random.random(data[i].shape))
+    return noisy_data
+
 # Prepare dataset
 print 'fetch MNIST dataset'
 mnist = fetch_mldata('MNIST original')
@@ -31,6 +40,8 @@ mnist.data = mnist.data.astype(np.float32)
 data = mnist.data / 255
 target = data
 labels_test = mnist.target[60000:]
+
+data = generate_noisy_data(data)
 
 N = 60000
 x_train, x_test = np.split(data, [N])
