@@ -51,16 +51,16 @@ N_train = len(x_train)
 
 
 # Neural net architecture
-def forward(x_data, y_data, train=True):
+def forward(x_data, y_data):
     x, t = Variable(x_data), Variable(y_data)
-    h = F.dropout(F.relu(model.l1(x)), train=train)
+    h = F.relu(model.l1(x))
     y = model.l2(h)
     return F.mean_squared_error(y, t)
 
 
-def predict(x_data, y_data, train=False):
+def predict(x_data, y_data):
     x, t = Variable(x_data), Variable(y_data)
-    h = F.dropout(F.relu(model.l1(x)), train=train)
+    h = F.relu(model.l1(x))
     y = model.l2(h)
     return y, F.mean_squared_error(y, t)
 
@@ -83,7 +83,7 @@ for epoch in xrange(1, n_epoch+1):
         y_batch = y_train[perm[i:i+batchsize]]
 
         optimizer.zero_grads()
-        loss = forward(x_batch, y_batch, train=False)
+        loss = forward(x_batch, y_batch)
         loss.backward()
         optimizer.update()
 
