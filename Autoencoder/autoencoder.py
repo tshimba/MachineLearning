@@ -58,15 +58,15 @@ N_train = len(x_train)
 # Neural net architecture
 def forward(x_data, y_data):
     x, t = Variable(x_data), Variable(y_data)
-    h = F.relu(model.l1(x))
-    y = model.l2(h)
+    h = F.sigmoid(model.l1(x))
+    y = F.sigmoid(model.l2(h))
     return F.mean_squared_error(y, t)
 
 
 def predict(x_data, y_data):
     x, t = Variable(x_data), Variable(y_data)
-    h = F.relu(model.l1(x))
-    y = model.l2(h)
+    h = F.sigmoid(model.l1(x))
+    y = F.sigmoid(model.l2(h))
     return y, F.mean_squared_error(y, t)
 
 # Setup optimizer
