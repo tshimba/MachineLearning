@@ -24,6 +24,7 @@ std_w2_init = 0.2
 
 N_train_rate = 0.9
 
+np.random.seed(0)
 
 
 def generate_noisy_data(data, stddev=1.0):
