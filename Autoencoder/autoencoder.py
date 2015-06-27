@@ -85,7 +85,7 @@ for epoch in xrange(1, n_epoch+1):
 
     # training
     perm = np.random.permutation(N_train)
-    sum_loss = 0
+
     for i in xrange(0, N_train, batchsize):
         x_batch = x_train_noise[perm[i:i+batchsize]]
         y_batch = y_train[perm[i:i+batchsize]]
@@ -94,8 +94,6 @@ for epoch in xrange(1, n_epoch+1):
         loss = forward(x_batch, y_batch)
         loss.backward()
         optimizer.update()
-
-        sum_loss += float(loss.data) * batchsize
 
     print "[w1l2] %5.4f" % np.linalg.norm(model.l1.W)
     print "[w2l2] %5.4f" % np.linalg.norm(model.l2.W)
