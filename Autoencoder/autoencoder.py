@@ -21,6 +21,7 @@ D = 784
 lr = 0.01
 std_w1_init = 1.0
 std_w2_init = 0.2
+regularization = 0.001
 
 N_train_rate = 0.9
 
@@ -94,6 +95,7 @@ for epoch in xrange(1, n_epoch+1):
         optimizer.zero_grads()
         loss = forward(x_batch, y_batch)
         loss.backward()
+        optimizer.weight_decay(regularization)
         optimizer.update()
 
     print "[w1l2] %5.4f" % np.linalg.norm(model.l1.W)
