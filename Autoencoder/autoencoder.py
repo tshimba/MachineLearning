@@ -13,16 +13,19 @@ from chainer import Variable, FunctionSet, optimizers
 import chainer.functions as F
 import draw_filters
 
-batchsize = 20
-n_epoch = 100
+batchsize = 100
+n_epoch = 300
 n_units = 100
 D = 784
 
 lr = 0.01
-std_w1_init = 1.0
-std_w2_init = 0.2
+std_w1_init = 1
+std_w2_init = 1
+print std_w1_init
+print std_w2_init
 
 N_train_rate = 0.9
+stddev = 0.5
 
 np.random.seed(0)
 
