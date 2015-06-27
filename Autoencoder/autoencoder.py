@@ -77,48 +77,52 @@ optimizer.setup(model.collect_parameters())
 scores_train = []
 scores_valid = []
 
-# Learning loop
-for epoch in xrange(1, n_epoch+1):
-    print 'epoch', epoch
+try:
+    # Learning loop
+    for epoch in xrange(1, n_epoch+1):
+        print 'epoch', epoch
 
-    x_train_noise = generate_noisy_data(x_train, stddev=stddev)
-    x_valid_noise = generate_noisy_data(x_valid, stddev=stddev)
+        x_train_noise = generate_noisy_data(x_train, stddev=stddev)
+        x_valid_noise = generate_noisy_data(x_valid, stddev=stddev)
 
-    # training
-    perm = np.random.permutation(N_train)
+        # training
+        perm = np.random.permutation(N_train)
 
-    for i in xrange(0, N_train, batchsize):
-        x_batch = x_train_noise[perm[i:i+batchsize]]
-        y_batch = y_train[perm[i:i+batchsize]]
+        for i in xrange(0, N_train, batchsize):
+            x_batch = x_train_noise[perm[i:i+batchsize]]
+            y_batch = y_train[perm[i:i+batchsize]]
 
-        optimizer.zero_grads()
-        loss = forward(x_batch, y_batch)
-        loss.backward()
-        optimizer.update()
+            optimizer.zero_grads()
+            loss = forward(x_batch, y_batch)
+            loss.backward()
+            optimizer.update()
 
-    print "[w1l2] %5.4f" % np.linalg.norm(model.l1.W)
-    print "[w2l2] %5.4f" % np.linalg.norm(model.l2.W)
+        print "[w1l2] %5.4f" % np.linalg.norm(model.l1.W)
+        print "[w2l2] %5.4f" % np.linalg.norm(model.l2.W)
 
-    print "[g1l2] %5.4f" % np.linalg.norm(model.l1.gW)
-    print "[g2l2] %5.4f" % np.linalg.norm(model.l2.gW)
+        print "[g1l2] %5.4f" % np.linalg.norm(model.l1.gW)
+        print "[g2l2] %5.4f" % np.linalg.norm(model.l2.gW)
 
-    y, score = predict(x_train_noise, y_train)
-    print "[train]", score.data
-    scores_train.append(float(score.data))
+        y, score = predict(x_train_noise, y_train)
+        print "[train]", score.data
+        scores_train.append(float(score.data))
 
-    y, score = predict(x_valid_noise, y_valid)
-    print "[valid]", score.data
-    scores_valid.append(float(score.data))
+        y, score = predict(x_valid_noise, y_valid)
+        print "[valid]", score.data
+        scores_valid.append(float(score.data))
 
-    # show error rate of train and valid
-    plt.figure()
-    plt.plot(np.arange(len(scores_train)), np.array(scores_train))
-    plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
-    plt.legend(['train', 'valid'])
-    plt.show()
+        # show error rate of train and valid
+        plt.figure()
+        plt.plot(np.arange(len(scores_train)), np.array(scores_train))
+        plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
+        plt.legend(['train', 'valid'])
+        plt.show()
 
-    draw_filters.draw_filters(model.l1.W)
-    plt.draw()
+        draw_filters.draw_filters(model.l1.W)
+        plt.draw()
+
+except KeyboardInterrupt:
+    pass
 
 # show error rate of train and valid
 plt.figure()
