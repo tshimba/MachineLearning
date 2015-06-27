@@ -71,7 +71,7 @@ def predict(x_data, y_data):
     return y, F.mean_squared_error(y, t)
 
 # Setup optimizer
-optimizer = optimizers.momentum_sgd.MomentumSGD(lr=lr, momentum=0.9)
+optimizer = optimizers.Adam(alpha=lr)
 optimizer.setup(model.collect_parameters())
 
 scores_train = []
