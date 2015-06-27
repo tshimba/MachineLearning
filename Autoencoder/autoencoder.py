@@ -37,8 +37,6 @@ data = mnist.data / 255
 target = data
 labels_test = mnist.target[60000:]
 
-data = generate_noisy_data(data)
-
 N = 60000
 x_train, x_test = np.split(data, [N])
 y_train, y_test = np.split(target, [N])
@@ -82,11 +80,14 @@ scores_valid = []
 for epoch in xrange(1, n_epoch+1):
     print 'epoch', epoch
 
+    x_train_noise = generate_noisy_data(x_train, stddev=stddev)
+    x_valid_noise = generate_noisy_data(x_valid, stddev=stddev)
+
     # training
     perm = np.random.permutation(N_train)
     sum_loss = 0
     for i in xrange(0, N_train, batchsize):
-        x_batch = x_train[perm[i:i+batchsize]]
+        x_batch = x_train_noise[perm[i:i+batchsize]]
         y_batch = y_train[perm[i:i+batchsize]]
 
         optimizer.zero_grads()
@@ -102,11 +103,11 @@ for epoch in xrange(1, n_epoch+1):
     print "[g1l2] %5.4f" % np.linalg.norm(model.l1.gW)
     print "[g2l2] %5.4f" % np.linalg.norm(model.l2.gW)
 
-    y, score = predict(x_train, y_train)
+    y, score = predict(x_train_noise, y_train)
     print "[train]", score.data
     scores_train.append(float(score.data))
 
-    y, score = predict(x_valid, y_valid)
+    y, score = predict(x_valid_noise, y_valid)
     print "[valid]", score.data
     scores_valid.append(float(score.data))
 
@@ -127,6 +128,7 @@ plt.plot(np.arange(len(scores_valid)), np.array(scores_valid))
 plt.legend(['train', 'valid'])
 plt.show()
 
+x_test = generate_noisy_data(x_test, stddev=stddev)
 result = np.empty(D)
 y, score = predict(x_test, y_test)
 for i in range(10):
