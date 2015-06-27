@@ -25,13 +25,9 @@ std_w2_init = 0.2
 N_train_rate = 0.9
 
 
-def generate_noisy_data(data, noise_std=1.0):
-    n = len(data)
-    noisy_data = []
-    for i in range(n):
-        noisy_data.append(data[i] + noise_std * data[i].std() *
-                          np.random.random(data[i].shape))
-    return noisy_data
+
+def generate_noisy_data(data, stddev=1.0):
+    return data + stddev * np.random.randn(data.shape[0], data.shape[1])
 
 # Prepare dataset
 print 'fetch MNIST dataset'
