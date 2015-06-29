@@ -41,17 +41,21 @@ class KMeansClassifier(object):
 
 
     def MStep(self, X, cluster, labels):
-        pass
+        for i in range(cluster.shape[0]):
+            n_data = np.sum(labels[:, i])
+            points = labels[:, i].reshape(-1, 1) * X
+            cluster[i] = np.sum(points, axis=0) / n_data
+        return cluster
 
 
     def preview_stage(self, X, cluster, labels):
         plt.figure()
-        color_id = np.array(('red', 'blue', 'green', 'yellow', 'black'))
+        color_id = np.array(('red', 'blue', 'black', 'green', 'yellow'))
         for i, label in enumerate(labels):
             for j in range(labels.shape[-1]):
                 if label.argmax() == j:
                     plt.plot(X[i, 0], X[i, 1], 'o', color=color_id[j])
-        plt.plot(cluster[:, 0], cluster[:, 1], 'gx')
+        plt.plot(cluster[:, 0], cluster[:, 1], 'o', color=color_id[4])
         plt.show()
 
 
@@ -83,8 +87,8 @@ class KMeansClassifier(object):
 if (__name__ == '__main__'):
     np.random.seed(0)
     
-    K = 2
-    n_epoch = 1
+    K = 4
+    n_epoch = 5
     
     X = load_faithful()
 
