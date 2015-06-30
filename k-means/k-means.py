@@ -84,7 +84,6 @@ class KMeansClassifier(object):
                     c=c,
                 )
                 plt.autoscale()
-                plt.grid()
                 plt.plot(cluster[:, x], cluster[:, y], 'yo')
         plt.show()
 
