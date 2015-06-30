@@ -43,6 +43,7 @@ class KMeansClassifier(object):
                 self.MStep(X, cluster, labels)
                 print '[M Step]'
                 self.preview_stage(X, cluster, labels)
+                self.score(X, cluster, labels)
         except KeyboardInterrupt:
             pass
 
@@ -67,6 +68,13 @@ class KMeansClassifier(object):
                     plt.plot(X[i, 0], X[i, 1], 'o', color=color_id[j])
         plt.plot(cluster[:, 0], cluster[:, 1], 'o', color=color_id[4])
         plt.show()
+
+    def score(self, X, cluster, labels):
+        args = labels.argmax(axis=1)
+        score = 0
+        for i, x in enumerate(X):
+            score += self.distance(cluster[args[i]], x)
+        print score
 
     def init_cluster(self, X):
         cluster = np.random.uniform(size=(self.K, X.shape[-1]))
