@@ -11,21 +11,28 @@ from scipy import loadtxt
 import generate_clustering_data
 from sklearn import datasets
 import itertools
+from sklearn import preprocessing
 
 
 def load_data(data_name='faithful'):
     if data_name is 'faithful':
-        return loadtxt('faithful.txt')
+        data = loadtxt('faithful.txt')
+        return preprocessing.scale(data)
     elif data_name is 'generate_clustering_data':
-        return generate_clustering_data.generate_clustering_data()
+        data = generate_clustering_data.generate_clustering_data()
+        return preprocessing.scale(data)
     elif data_name is 'generate_clustering_data_easy':
-        return generate_clustering_data.generate_clustering_data_easy()
+        data = generate_clustering_data.generate_clustering_data_easy()
+        return preprocessing.scale(data)
     elif data_name is 'generate_clustering_data_tilted':
-        return generate_clustering_data.generate_clustering_data_tilted()
+        data = generate_clustering_data.generate_clustering_data_tilted()
+        return preprocessing.scale(data)
     elif data_name is 'digits':
-        return datasets.load_digits().data
+        data = datasets.load_digits().data
+        return preprocessing.scale(data)
     elif data_name is 'iris':
-        return datasets.load_iris().data
+        data = datasets.load_iris().data
+        return preprocessing.scale(data)
 
 
 class KMeansClassifier(object):
