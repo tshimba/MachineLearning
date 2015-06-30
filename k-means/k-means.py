@@ -7,32 +7,8 @@ Created on Tue Jun 16 02:32:57 2015
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import loadtxt
 import generate_clustering_data
-from sklearn import datasets
 import itertools
-from sklearn import preprocessing
-
-
-def load_data(data_name='faithful'):
-    if data_name is 'faithful':
-        data = loadtxt('faithful.txt')
-        return preprocessing.scale(data)
-    elif data_name is 'generate_clustering_data':
-        data = generate_clustering_data.generate_clustering_data()
-        return preprocessing.scale(data)
-    elif data_name is 'generate_clustering_data_easy':
-        data = generate_clustering_data.generate_clustering_data_easy()
-        return preprocessing.scale(data)
-    elif data_name is 'generate_clustering_data_tilted':
-        data = generate_clustering_data.generate_clustering_data_tilted()
-        return preprocessing.scale(data)
-    elif data_name is 'digits':
-        data = datasets.load_digits().data
-        return preprocessing.scale(data)
-    elif data_name is 'iris':
-        data = datasets.load_iris().data
-        return preprocessing.scale(data)
 
 
 class KMeansClassifier(object):
@@ -125,7 +101,7 @@ if (__name__ == '__main__'):
     K = 4
     n_epoch = 5
 
-    X = load_data(data_name='iris')
+    X = generate_clustering_data.load_data(data_name='iris')
 
     classifier = KMeansClassifier(K=K)
     classifier.fit(X, n_epoch)
