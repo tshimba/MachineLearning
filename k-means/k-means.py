@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 from scipy import loadtxt
 import generate_clustering_data
 from sklearn import datasets
+import itertools
 
 
 def load_data(data_name='faithful'):
@@ -60,13 +61,24 @@ class KMeansClassifier(object):
         return cluster
 
     def preview_stage(self, X, cluster, labels):
-        plt.figure()
-        color_id = np.array(('red', 'blue', 'black', 'green', 'yellow'))
-        for i, label in enumerate(labels):
-            for j in range(labels.shape[-1]):
-                if label.argmax() == j:
-                    plt.plot(X[i, 0], X[i, 1], 'o', color=color_id[j])
-        plt.plot(cluster[:, 0], cluster[:, 1], 'o', color=color_id[4])
+        targets = labels.argmax(axis=1)
+        plt.figure(figsize=(12, 8))
+
+        n = X.shape[-1]
+        if n > 4:
+            n = 4
+        for i, (x, y) in enumerate(itertools.combinations(range(n), 2)):
+            plt.subplot(2, 3, i + 1)
+            for t, marker, c in zip(range(self.K), '>ox>ox>ox>', 'rgbcmykwrg'):
+                plt.scatter(
+                    X[targets == t, x],
+                    X[targets == t, y],
+                    marker=marker,
+                    c=c,
+                )
+                plt.autoscale()
+                plt.grid()
+                plt.plot(cluster[:, x], cluster[:, y], 'yo')
         plt.show()
 
     def score(self, X, cluster, labels):
