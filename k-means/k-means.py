@@ -16,6 +16,10 @@ def load_data(data_name='faithful'):
         return loadtxt('faithful.txt')
     elif data_name is 'generate_clustering_data':
         return generate_clustering_data.generate_clustering_data()
+    elif data_name is 'generate_clustering_data_easy':
+        return generate_clustering_data.generate_clustering_data_easy()
+    elif data_name is 'generate_clustering_data_tilted':
+        return generate_clustering_data.generate_clustering_data_tilted()
 
 class KMeansClassifier(object):
     def __init__(self, K=2):

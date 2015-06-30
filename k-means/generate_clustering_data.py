@@ -26,8 +26,32 @@ def generate_clustering_data():
     X.append(X_k)
 
     return np.array(X).reshape(len(X) * N, D)
-    
-    
+
+
+def generate_clustering_data_easy():
+    N, D = 100, 2
+    X = []
+
+    X_k = np.random.randn(N, D) * [50, 1] + [0, 10] + [0, -100]
+    X.append(X_k)
+
+    X_k = np.random.randn(N, D) * [50, 1] + [0, -10] + [0, -100]
+    X.append(X_k)
+
+    return np.array(X).reshape(len(X) * N, D)
+
+
+def generate_clustering_data_tilted():
+    N, D = 100, 2
+    X = []
+    mu = np.random.randn(N, 1) * 50
+    X_k = np.random.randn(N, D) + np.tile(mu, 2) + [-5, 5]
+    X.append(X_k)
+    mu = np.random.randn(N, 1) * 50
+    X_k = np.random.randn(N, D) + np.tile(mu, 2) + [5, -5]
+    X.append(X_k)
+    return np.array(X).reshape(len(X) * N, D)
+
 if __name__ == '__main__':
     X = generate_clustering_data()
     plt.plot(X[:, 0], X[:, 1], '.')
