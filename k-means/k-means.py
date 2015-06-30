@@ -21,15 +21,15 @@ def load_data(data_name='faithful'):
     elif data_name is 'generate_clustering_data_tilted':
         return generate_clustering_data.generate_clustering_data_tilted()
 
+
 class KMeansClassifier(object):
     def __init__(self, K=2):
         self.K = K
 
-
     def fit(self, X, n_epoch):
         cluster = self.init_cluster(X)
         labels = np.zeros((X.shape[0], cluster.shape[0]))    # 1 of K
-        
+
         try:
             for epoch in xrange(0, n_epoch):
                 labels = self.EStep(X, cluster)
@@ -41,12 +41,10 @@ class KMeansClassifier(object):
         except KeyboardInterrupt:
             pass
 
-
     def EStep(self, X, cluster):
         # update label
         labels = self.nearest_neighbor(X, cluster)
         return labels
-
 
     def MStep(self, X, cluster, labels):
         for i in range(cluster.shape[0]):
@@ -54,7 +52,6 @@ class KMeansClassifier(object):
             points = labels[:, i].reshape(-1, 1) * X
             cluster[i] = np.sum(points, axis=0) / n_data
         return cluster
-
 
     def preview_stage(self, X, cluster, labels):
         plt.figure()
@@ -65,7 +62,6 @@ class KMeansClassifier(object):
                     plt.plot(X[i, 0], X[i, 1], 'o', color=color_id[j])
         plt.plot(cluster[:, 0], cluster[:, 1], 'o', color=color_id[4])
         plt.show()
-
 
     def init_cluster(self, X):
         cluster = np.random.uniform(size=(self.K, X.shape[-1]))
@@ -94,12 +90,11 @@ class KMeansClassifier(object):
 
 if (__name__ == '__main__'):
     np.random.seed(0)
-    
+
     K = 4
     n_epoch = 5
-    
+
     X = load_data(data_name='generate_clustering_data')
 
     classifier = KMeansClassifier(K=K)
     classifier.fit(X, n_epoch)
-
