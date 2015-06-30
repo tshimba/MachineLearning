@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy import loadtxt
 import generate_clustering_data
+from sklearn import datasets
 
 
 def load_data(data_name='faithful'):
@@ -20,6 +21,10 @@ def load_data(data_name='faithful'):
         return generate_clustering_data.generate_clustering_data_easy()
     elif data_name is 'generate_clustering_data_tilted':
         return generate_clustering_data.generate_clustering_data_tilted()
+    elif data_name is 'digits':
+        return datasets.load_digits().data
+    elif data_name is 'iris':
+        return datasets.load_iris().data
 
 
 class KMeansClassifier(object):
@@ -94,7 +99,7 @@ if (__name__ == '__main__'):
     K = 4
     n_epoch = 5
 
-    X = load_data(data_name='generate_clustering_data')
+    X = load_data(data_name='iris')
 
     classifier = KMeansClassifier(K=K)
     classifier.fit(X, n_epoch)
