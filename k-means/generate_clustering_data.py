@@ -55,10 +55,6 @@ def generate_clustering_data_tilted():
 
 if __name__ == '__main__':
     X = generate_clustering_data()
-    plt.plot(X[:, 0], X[:, 1], '.')
-
-#    scaler = preprocessing.StandardScaler()
-#    X_scaled = scaler.fit_transform(X)
     X_scaled = preprocessing.scale(X)
 
     plt.figure()
