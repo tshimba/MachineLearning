@@ -8,10 +8,14 @@ Created on Tue Jun 16 02:32:57 2015
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import loadtxt
+import generate_clustering_data
 
 
-def load_faithful():
-    return loadtxt('faithful.txt')
+def load_data(data_name='faithful'):
+    if data_name is 'faithful':
+        return loadtxt('faithful.txt')
+    elif data_name is 'generate_clustering_data':
+        return generate_clustering_data.generate_clustering_data()
 
 class KMeansClassifier(object):
     def __init__(self, K=2):
@@ -90,7 +94,7 @@ if (__name__ == '__main__'):
     K = 4
     n_epoch = 5
     
-    X = load_faithful()
+    X = load_data(data_name='generate_clustering_data')
 
     classifier = KMeansClassifier(K=K)
     classifier.fit(X, n_epoch)
