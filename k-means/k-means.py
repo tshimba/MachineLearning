@@ -11,7 +11,7 @@ import generate_clustering_data
 import itertools
 
 
-class KMeansClassifier(object):
+class KMeans(object):
     def __init__(self, K=2):
         self.K = K
 
@@ -103,5 +103,5 @@ if (__name__ == '__main__'):
 
     X = generate_clustering_data.load_data(data_name='iris')
 
-    classifier = KMeansClassifier(K=K)
-    classifier.fit(X, n_epoch)
+    kmeans = KMeans(K=K)
+    kmeans.fit(X, n_epoch)
