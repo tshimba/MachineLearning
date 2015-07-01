@@ -9,6 +9,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import generate_clustering_data
 import itertools
+import draw_filters
 
 
 class KMeans(object):
@@ -73,10 +74,7 @@ class KMeans(object):
             plt.autoscale()
             plt.show()
         else:
-            for k in range(self.K):
-                plt.matshow(centroids[k].reshape(8, 8), cmap=plt.cm.gray)
-                plt.show()
-                plt.draw()
+            draw_filters.draw_filters(centroids, filter_shape=(8, 8))
 
     def score(self, X, centroids, labels):
         distances = np.sum((np.expand_dims(X, 1) - centroids) ** 2, axis=2)
@@ -97,10 +95,10 @@ class KMeans(object):
 if (__name__ == '__main__'):
     np.random.seed(0)
 
-    K = 4
-    n_epoch = 5
+    K = 10
+    n_epoch = 50
 
-    X = generate_clustering_data.load_data(data_name='iris')
+    X = generate_clustering_data.load_data(data_name='digits')
 
     kmeans = KMeans(K=K)
     kmeans.fit(X, n_epoch)
