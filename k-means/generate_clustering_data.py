@@ -7,14 +7,13 @@ Created on Mon Jun 29 14:55:33 2015
 
 import numpy as np
 import matplotlib.pyplot as plt
-from scipy import loadtxt
 from sklearn import datasets
 from sklearn import preprocessing
 
 
 def load_data(data_name='faithful'):
     if data_name is 'faithful':
-        data = loadtxt('faithful.txt')
+        data = np.loadtxt('faithful.txt')
         return preprocessing.scale(data)
     elif data_name is 'generate_clustering_data':
         data = generate_clustering_data.generate_clustering_data()
