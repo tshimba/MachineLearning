@@ -16,82 +16,81 @@ class KMeans(object):
         self.K = K
 
     def fit(self, X, n_epoch):
-        cluster = self.init_cluster(X)
-        labels = np.zeros((X.shape[0], cluster.shape[0]))    # 1 of K
+        centroids = self.init_centroids(X)
 
         try:
             for epoch in xrange(0, n_epoch):
-                labels = self.EStep(X, cluster)
-                print '[E Step]'
-                self.preview_stage(X, cluster, labels)
-                self.MStep(X, cluster, labels)
-                print '[M Step]'
-                self.preview_stage(X, cluster, labels)
-                self.score(X, cluster, labels)
+                labels = self.e_step(X, centroids)
+                print
+                print 'Iteration', epoch + 1, ': ', '=== E Step ==='
+                self.preview_stage(X, centroids, labels)
+
+                self.m_step(X, centroids, labels)
+                print 'Iteration', epoch + 1, ': ', '=== M Step ==='
+                self.preview_stage(X, centroids, labels)
+                self.score(X, centroids, labels)
+
         except KeyboardInterrupt:
             pass
 
-    def EStep(self, X, cluster):
+        self.centroids = centroids
+
+    def transform(self, X):
+        pass
+
+    def e_step(self, X, centroids):
         # update label
-        labels = self.nearest_neighbor(X, cluster)
+        labels = self.nearest_neighbor(X, centroids)
         return labels
 
-    def MStep(self, X, cluster, labels):
-        for i in range(cluster.shape[0]):
-            n_data = np.sum(labels[:, i])
-            points = labels[:, i].reshape(-1, 1) * X
-            cluster[i] = np.sum(points, axis=0) / n_data
-        return cluster
+    def m_step(self, X, centroids, labels):
+        for k in range(self.K):
+            points = X[labels == k]
+            centroids[k] = points.mean(axis=0)
+        return centroids
 
-    def preview_stage(self, X, cluster, labels):
-        targets = labels.argmax(axis=1)
-        plt.figure(figsize=(12, 8))
-
+    def preview_stage(self, X, centroids, labels):
         n = X.shape[-1]
-        if n > 4:
-            n = 4
-        for i, (x, y) in enumerate(itertools.combinations(range(n), 2)):
-            plt.subplot(2, 3, i + 1)
-            for t, marker, c in zip(range(self.K), '>ox>ox>ox>', 'rgbcmykwrg'):
-                plt.scatter(
-                    X[targets == t, x],
-                    X[targets == t, y],
-                    marker=marker,
-                    c=c,
-                )
-                plt.autoscale()
-                plt.plot(cluster[:, x], cluster[:, y], 'yo')
-        plt.show()
+        if n <= 4:
+            plt.figure(figsize=(10, 6))
+            for i, (x, y) in enumerate(itertools.combinations(range(n), 2)):
+                plt.subplot(2, 3, i + 1)
+                for k in range(self.K):
+                    color = plt.cm.get_cmap('nipy_spectral')(k * 255 / self.K)
+                    plt.scatter(
+                        X[labels == k, x],
+                        X[labels == k, y],
+                        marker='x',
+                        c=color,
+                    )
+                    plt.scatter(
+                        centroids[:, x],
+                        centroids[:, y],
+                        marker='*',
+                        c='yellow',
+                        s=200,
+                    )
+            plt.autoscale()
+            plt.show()
+        else:
+            for k in range(self.K):
+                plt.matshow(centroids[k].reshape(8, 8), cmap=plt.cm.gray)
+                plt.show()
+                plt.draw()
 
-    def score(self, X, cluster, labels):
-        args = labels.argmax(axis=1)
-        score = 0
-        for i, x in enumerate(X):
-            score += self.distance(cluster[args[i]], x)
-        print score
+    def score(self, X, centroids, labels):
+        distances = np.sum((np.expand_dims(X, 1) - centroids) ** 2, axis=2)
+        score = np.sum(distances[range(len(X)), labels])
+        print '[score]', score
 
-    def init_cluster(self, X):
-        cluster = np.random.uniform(size=(self.K, X.shape[-1]))
-        # Adjust the scale
-        for index in np.arange(X.shape[-1]):
-            cluster[:, index] *= np.max(X[:, index])
-        return cluster
+    def init_centroids(self, X):
+        indices = np.random.choice(len(X), self.K, False)
+        centroids = X[indices]
+        return centroids
 
-    def distance(self, p1, p2):
-        return np.sum((p1 - p2) ** 2)
-
-    def nearest_neighbor(self, X, cluster):
-        distance = np.array([self.distance(x, cluster[0]) for x in X])
-        distances = distance.reshape(-1, 1)
-        for c in cluster[1:]:
-            distance = np.array([self.distance(x, c) for x in X])
-            distance = distance.reshape(-1, 1)
-            distances = np.hstack((distances, distance))
-        nearest_points = distances.argmin(axis=1)
-        # create 1 of K label
-        labels = np.zeros((X.shape[0], cluster.shape[0]))
-        for i in np.arange(labels.shape[0]):
-            labels[i].put(nearest_points[i], 1)
+    def nearest_neighbor(self, X, centroids):
+        distances = np.sum((np.expand_dims(X, 1) - centroids) ** 2, axis=2)
+        labels = distances.argmin(axis=1)
         return labels
 
 
