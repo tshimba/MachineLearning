@@ -37,7 +37,9 @@ class KMeans(object):
         self.centroids = centroids
 
     def transform(self, X):
-        pass
+        labels = self.nearest_neighbor(X, self.centroids)
+        self.preview_stage(X, self.centroids[labels], labels)
+        return labels
 
     def e_step(self, X, centroids):
         # update label
@@ -96,9 +98,12 @@ if (__name__ == '__main__'):
     np.random.seed(0)
 
     K = 10
-    n_epoch = 50
+    n_epoch = 5
 
     X = generate_clustering_data.load_data(data_name='digits')
 
     kmeans = KMeans(K=K)
     kmeans.fit(X, n_epoch)
+
+    labels = kmeans.transform(X[:40])
+    print labels
