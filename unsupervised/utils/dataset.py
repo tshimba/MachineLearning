@@ -94,7 +94,7 @@ class LoadData(object):
             NNZ = int(lines[2])
             file_content = "\n".join(lines[3:])
             s = StringIO(file_content)
-            data = np.loadtxt(s)
+            data = np.loadtxt(s, dtype=np.int)
             break
 
         return D, W, NNZ, data
