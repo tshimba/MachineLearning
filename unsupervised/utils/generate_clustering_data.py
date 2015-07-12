@@ -13,7 +13,7 @@ from sklearn import preprocessing
 
 def load_data(data_name='faithful'):
     if data_name is 'faithful':
-        data = np.loadtxt('faithful.txt')
+        data = np.loadtxt('datasets/faithful.txt')
         return preprocessing.scale(data)
     elif data_name is 'generate_clustering_data':
         data = generate_clustering_data.generate_clustering_data()
