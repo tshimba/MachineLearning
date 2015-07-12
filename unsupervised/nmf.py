@@ -48,6 +48,17 @@ def factorize(v, pc=10, iteration=50):
 
     return w, h
 
+
+def sparse_to_matrix(D, W, NNZ, data):
+    mat = np.zeros((D, W))
+    for datum in data:
+        d_id = datum[0] - 1
+        w_id = datum[1] - 1
+        n_w = datum[2]
+        mat[d_id, w_id] = n_w
+    return mat
+
+
 if __name__ == '__main__':
     dataset_dir = 'datasets'
     downloader = dataset.DownloadDataset(dataset_dir)
@@ -72,4 +83,4 @@ if __name__ == '__main__':
     print D, W, NNZ, data.shape
     print len(table)
 
-    Mat = np.empty((D, W))
+    mat = sparse_to_matrix(D, W, NNZ, data)
