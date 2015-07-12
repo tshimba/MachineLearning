@@ -5,9 +5,12 @@ Created on Sun Jul 12 17:49:55 2015
 @author: shimba
 """
 
+import numpy as np
 import requests
 import os
 from BeautifulSoup import BeautifulSoup
+import gzip
+from StringIO import StringIO
 
 
 class DownloadDataset(object):
@@ -59,6 +62,66 @@ class DownloadDataset(object):
                 print 'Now saving the file [' + file_name + ']'
                 with open(file_path, 'w') as f:
                     f.write(r.content)
+
+
+class LoadData(object):
+    def __init__(self, dir_path):
+        self.dir_path = dir_path
+        self.file_list = os.listdir(dir_path)
+
+    def load_data(self, data_name=None):
+        '''
+        DataNames:
+            enron,
+            kos,
+            nips,
+            nytimes,
+            pubmed
+        '''
+        for file_name in self.file_list:
+            if not file_name.endswith(".gz"):
+                print 'pass'
+                continue
+            if data_name is not None and data_name not in file_name:
+                continue
+            file_name = os.path.join(self.dir_path, file_name)
+            print 'opening', file_name
+            with gzip.open(file_name, 'rb') as f:
+                file_content = f.read()
+            lines = file_content.split('\n')
+            D = int(lines[0])
+            W = int(lines[1])
+            NNZ = int(lines[2])
+            file_content = "\n".join(lines[3:])
+            s = StringIO(file_content)
+            data = np.loadtxt(s)
+            break
+
+        return D, W, NNZ, data
+
+    def load_allocation_table(self, corpus_name):
+        '''
+        DataNames:
+            enron,
+            kos,
+            nips,
+            nytimes,
+            pubmed
+        '''
+        for file_name in self.file_list:
+            if not file_name.endswith(".txt"):
+                continue
+            if corpus_name is not None and corpus_name not in file_name:
+                continue
+            file_name = os.path.join(self.dir_path, file_name)
+
+            with open(file_name, "r") as f:
+                table = f.read()
+            table = table.split('\n')
+            if table[-1] == "":
+                table = table[:-1]
+            break
+        return table
 
 if __name__ == '__main__':
     dataset_dir = '../datasets'

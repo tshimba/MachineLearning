@@ -7,6 +7,7 @@ Created on Sun Jul 12 15:49:47 2015
 
 import numpy as np
 from utils import dataset
+import os
 
 
 def difcost(a, b):
@@ -61,3 +62,14 @@ if __name__ == '__main__':
     print w.shape
     print h.shape
     print np.dot(w, h)
+
+    dir_path = os.path.join(dataset_dir, dataset_name)
+    dataloder = dataset.LoadData(dir_path)
+    data_name = 'enron'
+    D, W, NNZ, data = dataloder.load_data(data_name)
+    table = dataloder.load_allocation_table(data_name)
+
+    print D, W, NNZ, data.shape
+    print len(table)
+
+    Mat = np.empty((D, W))
