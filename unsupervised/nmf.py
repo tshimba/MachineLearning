@@ -18,14 +18,14 @@ def difcost(a, b):
     return dif
 
 
-def factorize(v, pc=10, iter=50):
+def factorize(v, pc=10, iteration=50):
     ic = v.shape[0]
     fc = v.shape[1]
 
     w = np.random.random((ic, pc))
     h = np.random.random((pc, fc))
 
-    for i in range(iter):
+    for i in range(iteration):
         wh = np.dot(w, h)
 
         cost = difcost(v, wh)
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     m1 = np.array(([1, 2, 3], [4, 5, 6]))
     m2 = np.array(([1, 2], [3, 4], [5, 6]))
-    w, h = factorize(np.dot(m1, m2), pc=3, iter=100)
+    w, h = factorize(np.dot(m1, m2), pc=3, iteration=100)
     print w.shape
     print h.shape
     print np.dot(w, h)
