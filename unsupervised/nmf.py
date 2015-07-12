@@ -26,6 +26,7 @@ def factorize(v, pc=10, iteration=50):
     h = np.random.random((pc, fc))
 
     for i in range(iteration):
+        print 'epoch', i + 1
         wh = np.dot(w, h)
 
         cost = difcost(v, wh)
@@ -84,3 +85,5 @@ if __name__ == '__main__':
     print len(table)
 
     mat = sparse_to_matrix(D, W, NNZ, data)
+
+    w, h = factorize(mat, pc=10, iteration=100)
