@@ -97,6 +97,7 @@ class LoadData(object):
             data = np.loadtxt(s, dtype=np.int)
             break
 
+        assert len(data) == NNZ, 'NNZ is incorrect'
         return D, W, NNZ, data
 
     def load_allocation_table(self, corpus_name):
