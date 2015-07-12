@@ -31,7 +31,8 @@ np.random.seed(0)
 
 
 def generate_noisy_data(data, stddev=1.0):
-    return data + stddev * np.random.randn(data.shape[0], data.shape[1])
+    rand = np.random.randn(data.shape[0], data.shape[1]).astype(np.float32)
+    return data + stddev * rand
 
 # Prepare dataset
 print 'fetch MNIST dataset'
