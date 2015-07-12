@@ -11,7 +11,7 @@ import matplotlib.pyplot as plt
 from sklearn import datasets
 from sklearn import cross_validation
 from scipy.misc import logsumexp
-import my_logsumexp
+from utils import my_logsumexp
 
 # Load the digits dataset
 digits = datasets.load_digits()     # load 10 classes, from 0 to 9

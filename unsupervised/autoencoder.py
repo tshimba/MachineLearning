@@ -11,7 +11,7 @@ from sklearn.datasets import fetch_mldata
 from sklearn import cross_validation
 from chainer import Variable, FunctionSet, optimizers
 import chainer.functions as F
-import draw_filters
+from utils import draw_filters
 
 batchsize = 100
 n_epoch = 300

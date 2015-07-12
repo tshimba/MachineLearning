@@ -7,9 +7,9 @@ Created on Tue Jun 16 02:32:57 2015
 
 import numpy as np
 import matplotlib.pyplot as plt
-import generate_clustering_data
+from utils import generate_clustering_data
 import itertools
-import draw_filters
+from utils import draw_filters
 
 
 class KMeans(object):
