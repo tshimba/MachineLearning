@@ -50,6 +50,18 @@ def factorize(v, pc=10, iteration=50):
     return w, h
 
 
+def showfeatures(w, h, table, out='features.txt'):
+    for i in range(h.shape[0]):
+        slist = []
+        for j in range(h.shape[1]):
+            slist.append((h[i, j], table[j]))
+        slist.sort()
+        slist.reverse()
+
+        n = [s[1] for s in slist[0:6]]
+        print n
+
+
 def sparse_to_matrix(D, W, NNZ, data):
     mat = np.zeros((D, W))
     for datum in data:
@@ -87,3 +99,4 @@ if __name__ == '__main__':
     mat = sparse_to_matrix(D, W, NNZ, data)
 
     w, h = factorize(mat, pc=16, iteration=50)
+    showfeatures(w, h, table)
