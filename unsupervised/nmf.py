@@ -80,21 +80,11 @@ if __name__ == '__main__':
     dataset_name = 'bag_of_words'
     downloader.bag_of_words(url, extension, dataset_name)
 
-    m1 = np.array(([1, 2, 3], [4, 5, 6]))
-    m2 = np.array(([1, 2], [3, 4], [5, 6]))
-    w, h = factorize(np.dot(m1, m2), pc=3, iteration=100)
-    print w.shape
-    print h.shape
-    print np.dot(w, h)
-
     dir_path = os.path.join(dataset_dir, dataset_name)
     dataloder = dataset.LoadData(dir_path)
     data_name = 'kos'
     D, W, NNZ, data = dataloder.load_data(data_name)
     table = dataloder.load_allocation_table(data_name)
-
-    print D, W, NNZ, data.shape
-    print len(table)
 
     mat = sparse_to_matrix(D, W, NNZ, data)
 
