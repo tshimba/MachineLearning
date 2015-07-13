@@ -38,7 +38,11 @@ if __name__ == '__main__':
     n_topics = 16
 
     dataset_dir = 'datasets'
+    downloader = dataset.DownloadDataset(dataset_dir)
+    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/bag-of-words/"
+    extension = ".txt"
     dataset_name = 'bag_of_words'
+    downloader.bag_of_words(url, extension, dataset_name)
     dir_path = os.path.join(dataset_dir, dataset_name)
     dataloder = dataset.LoadData(dir_path)
     data_name = 'kos'
