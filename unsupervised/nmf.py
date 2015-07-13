@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     dir_path = os.path.join(dataset_dir, dataset_name)
     dataloder = dataset.LoadData(dir_path)
-    data_name = 'enron'
+    data_name = 'kos'
     D, W, NNZ, data = dataloder.load_data(data_name)
     table = dataloder.load_allocation_table(data_name)
 
@@ -86,4 +86,4 @@ if __name__ == '__main__':
 
     mat = sparse_to_matrix(D, W, NNZ, data)
 
-    w, h = factorize(mat, pc=10, iteration=100)
+    w, h = factorize(mat, pc=16, iteration=50)
