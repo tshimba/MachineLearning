@@ -84,7 +84,6 @@ class LoadData(object):
         '''
         for file_name in self.file_list:
             if not file_name.endswith(".gz"):
-                print 'pass'
                 continue
             if data_name is not None and data_name not in file_name:
                 continue
