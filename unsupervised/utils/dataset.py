@@ -60,8 +60,12 @@ class DownloadDataset(object):
                     r = requests.get(url + download_url)
 
                 print 'Now saving the file [' + file_name + ']'
-                with open(file_path, 'w') as f:
-                    f.write(r.content)
+                if file_name.endswith('.gz'):
+                    with open(file_path, 'wb') as f:
+                        f.write(r.content)
+                elif file_name.endswith('.txt'):
+                    with open(file_path, 'w') as f:
+                        f.write(r.content)
 
 
 class LoadData(object):
