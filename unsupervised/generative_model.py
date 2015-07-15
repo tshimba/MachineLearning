@@ -13,7 +13,7 @@ if __name__ == '__main__':
                      basic_distributions.Gamma(),     # 2
                      basic_distributions.Beta()       # 3
                      ]
-    dist_type = 3
+    dist_type = 1
     sampler = distributions[dist_type]
 
     x = sampler()
