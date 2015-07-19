@@ -8,7 +8,7 @@ Created on Sun Jul 12 17:49:55 2015
 import numpy as np
 import requests
 import os
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import gzip
 from StringIO import StringIO
 
