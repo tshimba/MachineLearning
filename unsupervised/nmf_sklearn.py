@@ -13,7 +13,7 @@ import os
 from utils import dataset
 
 
-def sparse_to_matrix(D, W, NNZ, data):
+def sparse_to_dense(D, W, NNZ, data):
     mat = np.zeros((D, W))
     for datum in data:
         d_id = datum[0] - 1

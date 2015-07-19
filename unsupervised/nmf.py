@@ -62,7 +62,7 @@ def showfeatures(w, h, table, out='features.txt'):
         print n
 
 
-def sparse_to_matrix(D, W, NNZ, data):
+def sparse_to_dense(D, W, NNZ, data):
     mat = np.zeros((D, W))
     for datum in data:
         d_id = datum[0] - 1
