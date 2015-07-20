@@ -48,7 +48,7 @@ if __name__ == '__main__':
     data_name = 'kos'
     D, W, NNZ, data = dataloder.load_data(data_name)
     table = dataloder.load_allocation_table(data_name)
-    tfidf = sparse_to_matrix(D, W, NNZ, data)
+    tfidf = sparse_to_dense(D, W, NNZ, data)
 
     # Fit the NMF model
     nmf = NMF(n_components=n_topics, random_state=1).fit(tfidf)
