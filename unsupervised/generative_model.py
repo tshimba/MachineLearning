@@ -35,4 +35,4 @@ if __name__ == '__main__':
     print "Distribution: ", sampler.get_name()
 
     average = x.sum().astype(np.float32) / len(x)
-    my_poisson(average.round())
+    my_poisson(average)
