@@ -51,5 +51,6 @@ if __name__ == '__main__':
     tfidf = sparse_to_dense(D, W, NNZ, data)
 
     # Fit the NMF model
-    nmf = NMF(n_components=n_topics, random_state=1).fit(tfidf)
+    nmf = NMF(n_components=n_topics, random_state=1)
+    H = nmf.fit_transform(tfidf)
     showfeatures(nmf.components_, table)
