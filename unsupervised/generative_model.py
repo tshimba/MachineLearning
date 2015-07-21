@@ -21,10 +21,13 @@ def my_poisson(lam):
     plt.show()
 
 if __name__ == '__main__':
-    distributions = [basic_distributions.Gaussian(),  # 0
-                     basic_distributions.Poisson(),   # 1
-                     basic_distributions.Gamma(),     # 2
-                     basic_distributions.Beta()       # 3
+    distributions = [basic_distributions.Gaussian(),        # 0
+                     basic_distributions.Poisson(),         # 1
+                     basic_distributions.Gamma(),           # 2
+                     basic_distributions.Beta(),            # 3
+                     basic_distributions.LinearModel(),     # 4
+                     basic_distributions.LinearModel2(),    # 5
+                     basic_distributions.PoissonGLM(),      # 6
                      ]
     dist_type = 1
     sampler = distributions[dist_type]

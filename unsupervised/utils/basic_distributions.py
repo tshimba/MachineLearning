@@ -76,13 +76,53 @@ class Beta(ProbabilityDistribution):
         plt.hist(data, bins=bins, range=(0, 1))
 
 
+class LinearModel(ProbabilityDistribution):
+    def __init__(self, mean_a=0.001, mean_b=45, std=2):
+        self.mean_a = mean_a
+        self.mean_b = mean_b
+        self.std = std
+
+    def __call__(self, num_examples=10000):
+        i = np.arange(num_examples)
+        means = self.mean_a * i + self.mean_b
+        return np.random.normal(means, self.std, num_examples)
+
+
+class LinearModel2(ProbabilityDistribution):
+    def __init__(self, mean_a=0.01, mean_b=-10, std_a=0.0003, std_b=0.01):
+        self.mean_a = mean_a
+        self.mean_b = mean_b
+        self.std_a = std_a
+        self.std_b = std_b
+
+    def __call__(self, num_examples=10000):
+        i = np.arange(num_examples)
+        means = self.mean_a * i + self.mean_b
+        stds = np.exp(self.std_a * i + self.std_b)
+        return np.random.normal(means, stds, num_examples)
+
+
+class PoissonGLM(Poisson):
+    def __init__(self, mean_a=0.001, mean_b=1):
+        self.mean_a = mean_a
+        self.mean_b = mean_b
+
+    def __call__(self, num_examples=1000):
+        i = np.arange(num_examples)
+        means = np.exp(self.mean_a * i + self.mean_b)
+        return np.random.poisson(means)
+
+
 if __name__ == '__main__':
-    distributions = [Gaussian(),  # 0
-                     Poisson(),   # 1
-                     Gamma(),     # 2
-                     Beta()       # 3
+    distributions = [Gaussian(),      # 0
+                     Poisson(),       # 1
+                     Gamma(),         # 2
+                     Beta(),          # 3
+                     LinearModel(),   # 4
+                     LinearModel2(),  # 5
+                     PoissonGLM(),    # 6
                      ]
-    dist_type = 1
+    dist_type = 4
     sampler = distributions[dist_type]
 
     x = sampler()
