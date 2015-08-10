@@ -32,6 +32,20 @@ class ProbabilityDistribution(object):
         plt.hist(data, bins=bins, range=(x_min, x_max))
 
 
+class Multinomial(ProbabilityDistribution):
+    def __init__(self, p=[0.1, 0.2, 0.3, 0.4]):
+        self.K = len(p)
+        self.p = p
+
+    def __call__(self, num_examples=1000):
+        return np.random.choice(self.K, size=num_examples, p=self.p)
+
+    def _hist(self, data):
+        bins = np.arange(self.K + 1) - 0.5
+        plt.hist(data, bins=bins)
+        plt.xticks(range(self.K))
+
+
 class Gaussian(ProbabilityDistribution):
     def __init__(self, mean=50, std=2):
         self.mean = mean
@@ -114,15 +128,16 @@ class PoissonGLM(Poisson):
 
 
 if __name__ == '__main__':
-    distributions = [Gaussian(),      # 0
-                     Poisson(),       # 1
-                     Gamma(),         # 2
-                     Beta(),          # 3
-                     LinearModel(),   # 4
-                     LinearModel2(),  # 5
-                     PoissonGLM(),    # 6
+    distributions = [Multinomial(),   # 0
+                     Gaussian(),      # 1
+                     Poisson(),       # 2
+                     Gamma(),         # 3
+                     Beta(),          # 4
+                     LinearModel(),   # 5
+                     LinearModel2(),  # 6
+                     PoissonGLM(),    # 7
                      ]
-    dist_type = 4
+    dist_type = 7
     sampler = distributions[dist_type]
 
     x = sampler()
