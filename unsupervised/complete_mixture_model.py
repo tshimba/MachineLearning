@@ -10,16 +10,6 @@ from utils import mixture_distributions as mix
 import matplotlib.pyplot as plt
 
 
-def my_poisson(lam):
-    n_s = 100000
-    s = np.random.poisson(lam, n_s)
-    plt.plot(range(n_s), s, '.')
-    plt.show()
-
-    plt.hist(s, 14, normed=True)
-    plt.xlim([-2, 10])
-    plt.show()
-
 if __name__ == '__main__':
     distributions = [mix.MixtureOfGaussians(),  # 0
                      mix.MixtureOfPoissons(),   # 1
