@@ -27,8 +27,8 @@ if __name__ == '__main__':
     dist_type = 0
     sampler = distributions[dist_type]
 
-    x = sampler(10000)
+    x = sampler(10000, complete_data=True)
 
-    sampler.visualize(x)
+    sampler.visualize(x[1])
     print "Distribution: ", sampler.get_name()
     print "Parameters: ", sampler.get_params()
