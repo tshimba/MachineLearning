@@ -29,35 +29,28 @@ if __name__ == '__main__':
                      basic_distributions.LinearModel2(),    # 5
                      basic_distributions.PoissonGLM(),      # 6
                      ]
+
+    # Data sampling
     dist_type = 4
     sampler = distributions[dist_type]
+    y = sampler()
 
-    m = c = error = 0
-    n_iteration = 2000
-    for i in range(n_iteration):
-        y = sampler()
-        print 'Iteration:', i + 1, '/', n_iteration
+    # Calculate slope, intercept and error
+    N = len(y)
+    x = np.arange(0, N)
+    A = np.vstack([x, np.ones(N)]).T
 
-        # Calculate slope, intercept and error
-        N = len(y)
-        x = np.arange(0, N)
-        A = np.vstack([x, np.ones(N)]).T
+    lsm = np.linalg.lstsq(A, y)
+    m = lsm[0][0]   # slope
+    c = lsm[0][1]   # intercept
+    # Sum of squared error to an error at one sample
+    error = np.sqrt(lsm[1][0] / N)
 
-        lsm = np.linalg.lstsq(A, y)
-        m = m + lsm[0][0]
-        c = c + lsm[0][1]
-        error = error + np.sqrt(lsm[1][0] / N)
-
-    m = m / n_iteration
-    c = c / n_iteration
-    error = error / n_iteration
-
-    # Plot
-    # Original
+    # Plot original sampling data
     sampler.visualize(y)
     print "Distribution: ", sampler.get_name()
 
-    # Predicted
+    # Plot sampling data by using predicted m, c and error
     x_plot = np.arange(0, N)
     y_plot = (m * x_plot + c)
     noise = np.random.randn(N) * error
