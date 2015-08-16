@@ -22,3 +22,11 @@ if __name__ == '__main__':
     sampler.visualize(x[1])
     print "Distribution: ", sampler.get_name()
     print "Parameters: ", sampler.get_params()
+
+    N = len(x[0])
+    classes = np.unique(x[0])
+    sum_each_class = []
+    for c in classes:
+        sum_each_class.append(len(x[1][x[0] == c]))
+    sum_each_class = np.array(sum_each_class)
+    weights = sum_each_class / float(N)
