@@ -25,8 +25,21 @@ if __name__ == '__main__':
 
     N = len(x[0])
     classes = np.unique(x[0])
-    sum_each_class = []
-    for c in classes:
-        sum_each_class.append(len(x[1][x[0] == c]))
-    sum_each_class = np.array(sum_each_class)
+    N_classes = len(classes)
+    sum_each_class = np.empty(N_classes)
+    each_class_x = []
+    for i, c in enumerate(classes):
+        class_x = x[1][x[0] == c]
+        each_class_x.append(class_x)
+        sum_each_class[i] = len(class_x)
+
+    # Compute weights
     weights = sum_each_class / float(N)
+
+    # Compute means and stds
+    means = np.empty(N_classes)
+    stds = np.empty(N_classes)
+    for i, c in enumerate(classes):
+        means[i] = np.sum(each_class_x[i]) / sum_each_class[i]
+        stds[i] = np.sqrt(np.sum((each_class_x[i] - means[i]) ** 2) /
+                          sum_each_class[i])
