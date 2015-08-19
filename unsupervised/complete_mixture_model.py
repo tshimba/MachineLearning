@@ -11,16 +11,16 @@ from utils import mixture_distributions as mix
 # get complete data
 
 class CompleteMixtureModelParameterEstimator(object):
-    def estimate(self, x):
-        N = x[0].size
-        classes = np.unique(x[0])
-        N_classes = classes.size
+    def estimate(self, z, x):
+        N = len(z)
+        classes = np.unique(z)
+        N_classes = len(classes)
         sum_each_class = np.empty(N_classes)
         each_class_x = []
         for i, c in enumerate(classes):
-            class_x = x[1][x[0] == c]
+            class_x = x[z == c]
             each_class_x.append(class_x)
-            sum_each_class[i] = class_x.size
+            sum_each_class[i] = len(class_x)
 
         # Compute weights
         weights = sum_each_class / float(N)
@@ -40,15 +40,15 @@ if __name__ == '__main__':
     dist_type = 0
     sampler = distributions[dist_type]
 
-    x = sampler(10000, complete_data=True)
+    z, x = sampler(10000, complete_data=True)
 
     # Show sampled original data
-    sampler.visualize(x[1])
+    sampler.visualize(x)
     print "Distribution: ", sampler.get_name()
     print "Parameters: ", sampler.get_params()
 
     estimator = CompleteMixtureModelParameterEstimator()
-    K, weights, means, stds = estimator.estimate(x)
+    K, weights, means, stds = estimator.estimate(z, x)
 
     estimated_sampler = mix.MixtureOfGaussians(K=K, weights=weights,
                                                means=means, stds=stds)

@@ -20,8 +20,9 @@ class FixedMixtureOfGaussians(object):
         self.stds = stds
 
     def __call__(self):
-        x = (np.array((0, 0, 1, 1)), np.array((-2, 2, 12, 18)))
-        return x
+        z = np.array((0, 0, 1, 1))
+        x = np.array((-2, 2, 12, 18))
+        return z, x
 
     def get_params(self):
         return self.__dict__
@@ -34,12 +35,11 @@ class ParameterEstimatorTest(unittest.TestCase):
 
     def gaussian_mixture_generator(self):
         sampler = FixedMixtureOfGaussians()
-        x = sampler()
-        print x
+        z, x = sampler()
         self.params = sampler.get_params()
 
         estimator = CompleteMixtureModelParameterEstimator()
-        self.K, self.weights, self.means, self.stds = estimator.estimate(x)
+        self.K, self.weights, self.means, self.stds = estimator.estimate(z, x)
 
     def test_K(self):
         assert(np.allclose(self.params['K'], self.K))
