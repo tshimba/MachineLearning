@@ -39,9 +39,8 @@ if __name__ == '__main__':
     means = np.empty(N_classes)
     stds = np.empty(N_classes)
     for i, c in enumerate(classes):
-        means[i] = np.sum(each_class_x[i]) / sum_each_class[i]
-        stds[i] = np.sqrt(np.sum((each_class_x[i] - means[i]) ** 2) /
-                          sum_each_class[i])
+        means[i] = np.mean(each_class_x[i])
+        stds[i] = np.std(each_class_x[i])
 
     predicted_sampler = mix.MixtureOfGaussians(K=N_classes, weights=weights,
                                                means=means, stds=stds)
