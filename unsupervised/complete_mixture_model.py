@@ -10,8 +10,8 @@ from utils import mixture_distributions as mix
 
 # get complete data
 
-class CompleteMixtureModelParameterPredictor(object):
-    def predict(self, x):
+class CompleteMixtureModelParameterEstimator(object):
+    def estimate(self, x):
         N = x[0].size
         classes = np.unique(x[0])
         N_classes = classes.size
@@ -21,16 +21,16 @@ class CompleteMixtureModelParameterPredictor(object):
             class_x = x[1][x[0] == c]
             each_class_x.append(class_x)
             sum_each_class[i] = class_x.size
-    
+
         # Compute weights
         weights = sum_each_class / float(N)
-    
+
         # Compute means and stds
         means = np.empty(N_classes)
         stds = np.empty(N_classes)
         for i, c in enumerate(classes):
             means[i] = np.mean(each_class_x[i])
-            stds[i] = np.std(each_class_x[i])    
+            stds[i] = np.std(each_class_x[i])
         return N_classes, weights, means, stds
 
 if __name__ == '__main__':
@@ -47,12 +47,12 @@ if __name__ == '__main__':
     print "Distribution: ", sampler.get_name()
     print "Parameters: ", sampler.get_params()
 
-    predictor = CompleteMixtureModelParameterPredictor()
-    K, weights, means, stds = predictor.predict(x)
+    estimator = CompleteMixtureModelParameterEstimator()
+    K, weights, means, stds = estimator.estimate(x)
 
-    predicted_sampler = mix.MixtureOfGaussians(K=K, weights=weights,
+    estimated_sampler = mix.MixtureOfGaussians(K=K, weights=weights,
                                                means=means, stds=stds)
-    px = predicted_sampler(num_examples=10000)
+    px = estimated_sampler(num_examples=10000)
 
-    # Show sampled data by using predicted parameters
+    # Show sampled data by using estimated parameters
     sampler.visualize(px)

@@ -6,7 +6,7 @@ Created on Wed Aug 19 12:20:43 2015
 """
 
 import unittest
-from complete_mixture_model import CompleteMixtureModelParameterPredictor
+from complete_mixture_model import CompleteMixtureModelParameterEstimator
 import numpy as np
 
 
@@ -18,16 +18,16 @@ class FixedMixtureOfGaussians(object):
         self.weights = weights
         self.means = means
         self.stds = stds
-        
+
     def __call__(self):
         x = (np.array((0, 0, 1, 1)), np.array((-2, 2, 12, 18)))
         return x
-        
+
     def get_params(self):
         return self.__dict__
-    
 
-class ParameterPredictorTest(unittest.TestCase):
+
+class ParameterEstimatorTest(unittest.TestCase):
 
     def setUp(self):
         self.gaussian_mixture_generator()
@@ -37,24 +37,24 @@ class ParameterPredictorTest(unittest.TestCase):
         x = sampler()
         print x
         self.params = sampler.get_params()
-        
-        predictor = CompleteMixtureModelParameterPredictor()
-        self.K, self.weights, self.means, self.stds = predictor.predict(x)
-        
+
+        estimator = CompleteMixtureModelParameterEstimator()
+        self.K, self.weights, self.means, self.stds = estimator.estimate(x)
+
     def test_K(self):
         assert(np.allclose(self.params['K'], self.K))
-        
+
     def test_weights(self):
         assert(np.allclose(self.params['weights'], self.weights))
-        
+
     def test_means(self):
         assert(np.allclose(self.params['means'], self.means))
-        
+
     def test_stds(self):
         assert(np.allclose(self.params['stds'], self.stds))
 
 
 def suite():
     suite = unittest.TestSuite()
-    suite.addTests(unittest.makeSuite(ParameterPredictorTest))
+    suite.addTests(unittest.makeSuite(ParameterEstimatorTest))
     return suite
