@@ -22,7 +22,7 @@ if __name__ == '__main__':
     print "Distribution: ", sampler.get_name()
     print "Parameters: ", sampler.get_params()
 
-    N = len(x[0])
+    N = x[0].size
     classes = np.unique(x[0])
     N_classes = len(classes)
     sum_each_class = np.empty(N_classes)
@@ -48,3 +48,4 @@ if __name__ == '__main__':
 
     # Show sampled data by using predicted parameters
     sampler.visualize(px)
+    np.histogram()
