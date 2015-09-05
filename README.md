@@ -1,4 +1,6 @@
 # About
+
+[![Join the chat at https://gitter.im/f2um2326/MachineLearning](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/f2um2326/MachineLearning?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 This repository implemented Machine Learning algorithms by NumPy or Chainer.  
 
 ### The algorithms bellow are implemented
