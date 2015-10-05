@@ -33,21 +33,21 @@ if __name__ == '__main__':
     # Data sampling
     dist_type = 4
     sampler = distributions[dist_type]
-    x = sampler()
+    y = sampler()
 
     # Calculate slope, intercept and error
-    N = len(x)
-    x_axis = np.arange(0, N)
-    A = np.vstack([x_axis, np.ones(N)]).T
+    N = len(y)
+    x = np.arange(0, N)
+    A = np.vstack([x, np.ones(N)]).T
 
-    lsm = np.linalg.lstsq(A, x)
+    lsm = np.linalg.lstsq(A, y)
     m = lsm[0][0]   # slope
     c = lsm[0][1]   # intercept
     # Sum of squared error to an error at one sample
     error = np.sqrt(lsm[1][0] / N)
 
     # Plot original sampling data
-    sampler.visualize(x)
+    sampler.visualize(y)
     print "Distribution: ", sampler.get_name()
 
     # Plot sampling data by using predicted m, c and error
