@@ -1,3 +1,11 @@
+[![Stories in Ready][waffle_shield]][waffle]
+[![Build Status][travis_shield]][travis]
+
+[waffle]: https://waffle.io/f2um2326/MachineLearning
+[waffle_shield]: https://badge.waffle.io/f2um2326/MachineLearning.png?label=ready&title=Ready
+[travis]: https://travis-ci.org/f2um2326/MachineLearning
+[travis_shield]: https://api.travis-ci.org/f2um2326/MachineLearning.svg
+
 # About
 This repository implemented Machine Learning algorithms by NumPy or Chainer.  
 
